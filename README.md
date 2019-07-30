@@ -61,7 +61,7 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
     ```
     To properly load a saved model, you must pass the `udpipe_model` argument when loading it:
     ```python
-    udipe_model = spacy_udpipe.UDPipeModel("en")
-    nlp = spacy.load("./udpipe-spacy-model", udipe_model=udipe_model)
+    udpipe_model = spacy_udpipe.UDPipeModel("en")
+    nlp = spacy.load("./udpipe-spacy-model", udpipe_model=udpipe_model)
 
     ```
