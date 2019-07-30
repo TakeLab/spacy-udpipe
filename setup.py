@@ -11,7 +11,7 @@ LANGS = ["udpipe_{} = spacy_udpipe:UDPipeLanguage".format(s)
 
 setuptools.setup(
     name="spacy-udpipe",
-    version="0.1.0",
+    version="0.0.1",
     description="Use fast UDPipe models directly in spaCy",
     long_description=long_description,
     long_description_content_type="text/markdown",

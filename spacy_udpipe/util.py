@@ -99,17 +99,17 @@ LANGUAGES = {
     "ug": "uyghur-udt-ud-2.4-190531.udpipe",
     "ur": "urdu-udtb-ud-2.4-190531.udpipe"
 }
-MODELS_DIR = Path(__file__).parent / "models"
+MODELS_DIR = os.path.join(Path(__file__).parent, "models")
 
 
 def _check_language(lang):
     if not lang in LANGUAGES:
-        raise Exception("'%s' language not available" % lang)
+        raise Exception("'{}' language not available".format(lang))
 
 
 def _check_models_dir(lang):
     if not os.path.exists(MODELS_DIR):
-        os.makedirs(MODELS_DIR)
+        raise Exception("Download the pretrained model(s) first")
 
 
 def download(lang):
@@ -118,10 +118,21 @@ def download(lang):
     lang (unicode): The language code.
     """
     _check_language(lang)
-    _check_models_dir(lang)
+    try:
+        _check_models_dir(lang)
+    except Exception:
+        os.makedirs(MODELS_DIR)
+    if LANGUAGES[lang] in os.listdir(MODELS_DIR):
+        msg = "Already downloaded a model for the" \
+              " '{}' language".format(lang)
+        print(msg)
+        return
     url = BASE_URL + LANGUAGES[lang]
     fname = os.path.join(MODELS_DIR, LANGUAGES[lang])
     urllib.request.urlretrieve(url=url, filename=fname)
+    msg = "Successfully downloaded the pretrained UDPipe" \
+          " model for the '{}' language".format(lang)
+    print(msg)
 
 
 def get_path(lang):
@@ -133,9 +144,9 @@ def get_path(lang):
     _check_language(lang)
     _check_models_dir(lang)
     if not LANGUAGES[lang] in os.listdir(MODELS_DIR):
-        raise Exception(("Use spacy_udpipe.download to download "
-                         "the pretrained UDPipe model for the '%s' language"
-                         % lang))
+        msg = "Use spacy_udpipe.download to download the pretrained" \
+              " UDPipe model for the '{}' language".format(lang)
+        raise Exception(msg)
     path = os.path.join(MODELS_DIR, LANGUAGES[lang])
     return path
 

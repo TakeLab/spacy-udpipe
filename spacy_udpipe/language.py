@@ -6,7 +6,7 @@ from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
 
-import ufal.udpipe
+from ufal.udpipe import Sentence, OutputFormat, InputFormat, Model, ProcessingError
 
 from .util import get_defaults, get_path
 
@@ -34,7 +34,7 @@ class UDPipeLanguage(Language):
         the language class and "lang": "udpipe_en" in the meta.json will
         automatically instantiate this class if this package is available.
 
-        udpipe_model (UDPipeModel): The loaded UDPipe udpipe.
+        udpipe_model (UDPipeModel): The loaded UDPipe model.
         meta (dict): spaCy model metadata.
         kwargs: Optional config parameters.
         RETURNS (spacy.language.Language): The UDPipeLanguage object.
@@ -87,7 +87,7 @@ class UDPipeTokenizer(object):
         text (unicode): The text to process.
         RETURNS (spacy.tokens.Doc): The spaCy Doc object.
         """
-        udpipe_sents = self.model(text) if text else [ufal.udpipe.Sentence()]
+        udpipe_sents = self.model(text) if text else [Sentence()]
         text = " ".join(s.getText() for s in udpipe_sents)
         tokens, heads = self.get_tokens_with_heads(udpipe_sents)
         if not len(tokens):
@@ -103,7 +103,7 @@ class UDPipeTokenizer(object):
         is_aligned = self.check_aligned(text, tokens)
         for i, token in enumerate(tokens):
             span = text[offset:]
-            if not len(span):
+            if not span:
                 break
             while len(span) and span[0].isspace():
                 # If we encounter leading whitespace, skip one character ahead
@@ -156,7 +156,7 @@ class UDPipeTokenizer(object):
         """Flatten the tokens in the UDPipe sentence representations and extract
         the token indices of the sentence start tokens to is_sent_start set.
 
-        udpipe_sents (list): The processed ufal.udpipe.Sentence-s.
+        udpipe_sents (list): The processed Sentence-s.
         RETURNS (list): The tokens (words).
         """
         tokens = []
@@ -190,9 +190,9 @@ class UDPipeModel:
         RETURNS (UDPipeModel): Language specific UDPipeModel.
         """
         path = get_path(lang)
-        self.model = ufal.udpipe.Model.load(path)
+        self.model = Model.load(path)
         if not self.model:
-            raise Exception("Cannot load UDPipe model from file '%s'" % path)
+            raise Exception("Cannot load UDPipe model from file '{}'".format(path))
         self._lang = lang
         self._meta = {'author': ("Charles University"
                                  "Faculty of Mathematics and Physics,"
@@ -208,14 +208,14 @@ class UDPipeModel:
                       'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
                       'sources': 'Universal Dependencies 2.4',
                       'url': 'http://ufal.mff.cuni.cz/udpipe',
-                      'version': '0.1.0'
+                      'version': '0.0.1'
                       }
 
     def __call__(self, text):
         """Tokenize, tag and parse the text and return it in an UDPipe representation.
 
         text (unicode): Input text.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s."""
+        RETURNS (list): Processed Sentence-s."""
         sentences = self.tokenize(text)
         for s in sentences:
             self.tag(s)
@@ -227,16 +227,16 @@ class UDPipeModel:
 
         text (unicode): Input text.
         input_format (unicode): Desired input format.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
+        RETURNS (list): Processed Sentence-s.
         """
         input_format.setText(text)
-        error = ufal.udpipe.ProcessingError()
+        error = ProcessingError()
         sentences = []
 
-        sentence = ufal.udpipe.Sentence()
+        sentence = Sentence()
         while input_format.nextSentence(sentence, error):
             sentences.append(sentence)
-            sentence = ufal.udpipe.Sentence()
+            sentence = Sentence()
         if error.occurred():
             raise Exception(error.message)
 
@@ -246,7 +246,7 @@ class UDPipeModel:
         """Tokenize the text.
 
         text (unicode): Input text.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
+        RETURNS (list): Processed Sentence-s.
         """
         tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
@@ -256,42 +256,40 @@ class UDPipeModel:
     def tag(self, sentence):
         """Assing part-of-speech tags (inplace).
 
-        sentence (ufal.udpipe.Sentence): Input sentence.
-        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
+        sentence (Sentence): Input sentence.
+        RETURNS (Sentence): Tagged sentence.
         """
         self.model.tag(sentence, self.model.DEFAULT)
 
     def parse(self, sentence):
         """Assing dependency parse relations (inplace).
 
-        sentence (ufal.udpipe.Sentence): Input sentence.
-        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
+        sentence (Sentence): Input sentence.
+        RETURNS (Sentence): Tagged sentence.
         """
         self.model.parse(sentence, self.model.DEFAULT)
 
     def read(self, text, in_format):
-        """Load text in the given format and return list of ufal.udpipe.Sentence-s.
+        """Load text in the given format and return list of Sentence-s.
 
         text (unicode): Text to load.
         in_format (unicode): One of conllu|horizontal|vertical.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
+        RETURNS (list): Processed Sentence-s.
         """
-        input_format = ufal.udpipe.InputFormat.newInputFormat(in_format)
+        input_format = InputFormat.newInputFormat(in_format)
         if not input_format:
-            raise Exception("Cannot create input format '%s'" % in_format)
+            raise Exception("Cannot create input format '{}'".format(in_format))
         return self._read(text, input_format)
 
     def write(self, sentences, out_format):
         """Write given sentences in the required output format.
 
-        sentences (list): Input ufal.udpipe.Sentence-s.
+        sentences (list): Input Sentence-s.
         out_format (unicode): One of conllu|horizontal|vertical.
         RETURNS (unicode): Sentences in the desired format.
         """
-        output_format = ufal.udpipe.OutputFormat.newOutputFormat(out_format)
-        output = ''
-        for sentence in sentences:
-            output += output_format.writeSentence(sentence)
+        output_format = OutputFormat.newOutputFormat(out_format)
+        output = ''.join([output_format.writeSentence(s) for s in sentences])
         output += output_format.finishDocument()
 
         return output

@@ -3,7 +3,7 @@
 This package wraps the fast and efficent [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
 [UDPipe pretrained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline.
-It can be considered a fork of [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), while being much faster in practice.
+It can be considered a much faster fork of [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp).
 
 ## Installation
 
@@ -23,7 +23,7 @@ The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spac
 ```python
 import spacy_udpipe
 
-text = "Wikipedia is a free online encyclopedia, created and edited by volunteers around the world and hosted by the Wikimedia Foundation."
+text = "Wikipedia is a free online encyclopedia, created and edited by volunteers around the world."
 nlp = spacy_udpipe.load("en")
 
 doc = nlp(text)
@@ -41,6 +41,8 @@ during an internship in [Text Analysis and Knowledge Engineering Lab (TakeLab)](
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
+
+To start the tests, just run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)  © TakeLab
