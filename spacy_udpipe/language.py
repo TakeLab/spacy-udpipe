@@ -2,11 +2,13 @@
 import re
 
 import numpy
+from spacy import __version__ as spacy_version
 from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
 
-from ufal.udpipe import Sentence, OutputFormat, InputFormat, Model, ProcessingError
+from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
+                         Sentence)
 
 from .util import get_defaults, get_path
 
@@ -50,6 +52,7 @@ class UDPipeLanguage(Language):
             if meta is None
             else dict(meta)
         )
+        self._meta.setdefault("spacy_version", ">={}".format(spacy_version))
         self._path = None
         self._optimizer = None
 
@@ -192,27 +195,27 @@ class UDPipeModel:
         path = get_path(lang)
         self.model = Model.load(path)
         if not self.model:
-            raise Exception("Cannot load UDPipe model from file '{}'".format(path))
+            msg = "Cannot load UDPipe model from " \
+                  "file '{}'".format(path)
+            raise Exception(msg)
         self._lang = lang
-        self._meta = {'author': ("Charles University"
-                                 "Faculty of Mathematics and Physics,"
-                                 "Institute of Formal and Applied Linguistics "
-                                 "(UFAL)"),
-                      'description': ("UDPipe model trained on Universal"
-                                      "Dependencies 2.4"),
+        self._meta = {'authors': ("Milan Straka, "
+                                  "Jana Straková"),
+                      'description': "UDPipe pretrained model.",
                       'email': 'straka@ufal.mff.cuni.cz',
                       'lang': 'udpipe_' + lang,
                       'license': 'CC BY-NC-SA 4.0',
                       'name': path.split('/')[-1],
                       'parent_package': 'spacy_udpipe',
                       'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
-                      'sources': 'Universal Dependencies 2.4',
+                      'source': 'Universal Dependencies 2.4',
                       'url': 'http://ufal.mff.cuni.cz/udpipe',
-                      'version': '0.0.1'
+                      'version': '1.2.0'
                       }
 
     def __call__(self, text):
-        """Tokenize, tag and parse the text and return it in an UDPipe representation.
+        """Tokenize, tag and parse the text and return it in an UDPipe
+        representation.
 
         text (unicode): Input text.
         RETURNS (list): Processed Sentence-s."""
@@ -278,7 +281,9 @@ class UDPipeModel:
         """
         input_format = InputFormat.newInputFormat(in_format)
         if not input_format:
-            raise Exception("Cannot create input format '{}'".format(in_format))
+            msg = "Cannot create input format " \
+                  "'{}'".format(in_format)
+            raise Exception(msg)
         return self._read(text, input_format)
 
     def write(self, sentences, out_format):
