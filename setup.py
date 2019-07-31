@@ -1,13 +1,21 @@
-import setuptools
+import json
+import os
 
-from spacy_udpipe.util import LANGUAGES
+import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 URL = "https://github.com/asajatovic/spacy-udpipe"
-LANGS = ["udpipe_{} = spacy_udpipe:UDPipeLanguage".format(s)
-         for s in LANGUAGES.keys()]
+
+# get a dict of available languages from languages.json
+root = os.path.abspath(os.path.dirname(__file__))
+langs_path = os.path.join(root, "spacy_udpipe", "languages.json")
+with open(langs_path, "r") as f:
+    LANGUAGES = json.load(f)
+
+ENTRY_LANGS = set("udpipe_{} = spacy_udpipe:UDPipeLanguage".format(s.split('-')[0])
+                  for s in LANGUAGES.keys())
 
 setuptools.setup(
     name="spacy-udpipe",
@@ -24,7 +32,7 @@ setuptools.setup(
     install_requires=["spacy>=2.1.0", "ufal.udpipe>=1.2.0"],
     python_requires=">=3.6",
     entry_points={
-        "spacy_languages": LANGS
+        "spacy_languages": ENTRY_LANGS
     },
     classifiers=[
         "Development Status :: 4 - Beta",
