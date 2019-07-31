@@ -143,14 +143,14 @@ class UDPipeTokenizer(object):
         return doc
 
     def __dep(self, dep):
-        # ensure labels match with SpaCy
+        # Ensure labels match with SpaCy
         return 'ROOT' if dep == 'root' else dep
 
     def pipe(self, texts):
         """Tokenize a stream of texts.
 
         texts: A sequence of unicode texts.
-        YIELDS (Doc): A sequence of Doc objects, in order.
+        YIELDS (spacy.tokens.Doc): A sequence of Doc objects, in order.
         """
         for text in texts:
             yield self(text)
@@ -159,7 +159,7 @@ class UDPipeTokenizer(object):
         """Flatten the tokens in the UDPipe sentence representations and extract
         the token indices of the sentence start tokens to is_sent_start set.
 
-        udpipe_sents (list): The processed Sentence-s.
+        udpipe_sents (list): The processed ufal.udpipe.Sentence-s.
         RETURNS (list): The tokens (words).
         """
         tokens = []
@@ -218,7 +218,7 @@ class UDPipeModel:
         representation.
 
         text (unicode): Input text.
-        RETURNS (list): Processed Sentence-s."""
+        RETURNS (list): Processed ufal.udpipe.Sentence-s."""
         sentences = self.tokenize(text)
         for s in sentences:
             self.tag(s)
@@ -230,7 +230,7 @@ class UDPipeModel:
 
         text (unicode): Input text.
         input_format (unicode): Desired input format.
-        RETURNS (list): Processed Sentence-s.
+        RETURNS (list): Processed ufal.udpipe.Sentence-s.
         """
         input_format.setText(text)
         error = ProcessingError()
@@ -249,7 +249,7 @@ class UDPipeModel:
         """Tokenize the text.
 
         text (unicode): Input text.
-        RETURNS (list): Processed Sentence-s.
+        RETURNS (list): Processed ufal.udpipe.Sentence-s.
         """
         tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
@@ -259,16 +259,16 @@ class UDPipeModel:
     def tag(self, sentence):
         """Assing part-of-speech tags (inplace).
 
-        sentence (Sentence): Input sentence.
-        RETURNS (Sentence): Tagged sentence.
+        sentence (ufal.udpipe.Sentence): Input sentence.
+        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
         """
         self.model.tag(sentence, self.model.DEFAULT)
 
     def parse(self, sentence):
         """Assing dependency parse relations (inplace).
 
-        sentence (Sentence): Input sentence.
-        RETURNS (Sentence): Tagged sentence.
+        sentence (ufal.udpipe.Sentence): Input sentence.
+        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
         """
         self.model.parse(sentence, self.model.DEFAULT)
 
@@ -277,7 +277,7 @@ class UDPipeModel:
 
         text (unicode): Text to load.
         in_format (unicode): One of conllu|horizontal|vertical.
-        RETURNS (list): Processed Sentence-s.
+        RETURNS (list): Processed ufal.udpipe.Sentence-s.
         """
         input_format = InputFormat.newInputFormat(in_format)
         if not input_format:
@@ -289,7 +289,7 @@ class UDPipeModel:
     def write(self, sentences, out_format):
         """Write given sentences in the required output format.
 
-        sentences (list): Input Sentence-s.
+        sentences (list): Input ufal.udpipe.Sentence-s.
         out_format (unicode): One of conllu|horizontal|vertical.
         RETURNS (unicode): Sentences in the desired format.
         """

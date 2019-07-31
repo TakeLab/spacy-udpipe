@@ -115,7 +115,7 @@ def _check_models_dir(lang):
 def download(lang):
     """Download the UDPipe pretrained model.
 
-    lang (unicode): The language code.
+    lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
     """
     _check_language(lang)
     try:
@@ -138,7 +138,7 @@ def download(lang):
 def get_path(lang):
     """Get the path to the UDPipe pretrained model if it was downloaded.
 
-    lang (unicode): The language code.
+    lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
     RETURNS (unicode): The path to the UDPipe pretrained model.
     """
     _check_language(lang)
@@ -156,7 +156,7 @@ def get_defaults(lang):
     using lexical attribute getters that depend on static language data, e.g.
     Token.like_num, Token.is_stop, Doc.noun_chunks etc.
 
-    lang (unicode): The language code.
+    lang (unicode): ISO 639-1 language code.
     RETURNS (Language.Defaults): The language defaults.
     """
     try:
