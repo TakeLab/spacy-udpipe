@@ -17,7 +17,7 @@ def load(lang):
     """Convenience function for initializing the Language class that
     mimicks spacy.load.
 
-    lang (unicode): ISO 639-1 language code.
+    lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
     RETURNS (spacy.language.Language):  The UDPipeLanguage object.
     """
     model = UDPipeModel(lang)
@@ -189,7 +189,7 @@ class UDPipeModel:
     def __init__(self, lang):
         """Load UDPipe model for given language.
 
-        lang (unicode): ISO 639-1 language code.
+        lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
         RETURNS (UDPipeModel): Language specific UDPipeModel.
         """
         path = get_path(lang)
@@ -198,12 +198,12 @@ class UDPipeModel:
             msg = "Cannot load UDPipe model from " \
                   "file '{}'".format(path)
             raise Exception(msg)
-        self._lang = lang
+        self._lang = lang.split('-')[0]
         self._meta = {'authors': ("Milan Straka, "
                                   "Jana Straková"),
                       'description': "UDPipe pretrained model.",
                       'email': 'straka@ufal.mff.cuni.cz',
-                      'lang': 'udpipe_' + lang,
+                      'lang': 'udpipe_' + self._lang,
                       'license': 'CC BY-NC-SA 4.0',
                       'name': path.split('/')[-1],
                       'parent_package': 'spacy_udpipe',
