@@ -35,7 +35,7 @@ As all attributes are computed once and set in the custom [`Tokenizer`](https://
 
 ## Authors and acknowledgment
 Created by [Antonio Šajatović](http://github.com/asajatovic)
-during an internship in [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
+during an internship at [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
@@ -52,6 +52,8 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 
 ## Notes
 * All annotations match with Spacy's, except for token.tag_, which map from [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank.
+
+* Full list of supported languages and models is available in [`util.py`](https://github.com/asajatovic/spacy-udpipe/blob/master/spacy_udpipe/util.py#L10).
 
 * This package exposes a `spacy_languages` entry point in its `setup.py` so full suport for serialization is enabled:
     ```python
