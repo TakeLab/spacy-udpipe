@@ -34,6 +34,10 @@ setuptools.setup(
     entry_points={
         "spacy_languages": ENTRY_LANGS
     },
+    tests_require=["pytest>=5.0.0"],
+    package_data={
+        'spacy_udpipe': ['./languages.json'],
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
