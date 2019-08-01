@@ -3,7 +3,8 @@
 This package wraps the fast and efficent [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
 [UDPipe pretrained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline.
-It can be considered a much faster fork of [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp).
+Inspired by [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), this package offers slightly less accurate
+models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
 
 ## Installation
 
@@ -13,10 +14,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-u
 pip install git+https://github.com/asajatovic/spacy-udpipe
 ```
 
-After installation, use `spacy_udpipe.download` to download the pretrained model for your language (if available).
+After installation, use `spacy_udpipe.download(lang)` to download the pretrained model for the desired language (if available).
 
 ## Usage
-The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e. the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
+The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
 
 ```python
 import spacy_udpipe
@@ -49,11 +50,13 @@ To start the tests, just run [`pytest`](https://docs.pytest.org/en/latest/conten
 Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
 
 ## Notes
+* All available pretrained models are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
 * All annotations match with Spacy's, except for token.tag_, which map from [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank.
 
 * Full list of supported languages and models is available in [`languages.json`](https://github.com/asajatovic/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
 
-* This package exposes a `spacy_languages` entry point in its `setup.py` so full suport for serialization is enabled:
+* This package exposes a `spacy_languages` entry point in its [`setup.py`](https://github.com/asajatovic/spacy-udpipe/blob/master/setup.py) so full suport for serialization is enabled:
     ```python
     nlp = spacy_udpipe.load("en")
     nlp.to_disk("./udpipe-spacy-model")
