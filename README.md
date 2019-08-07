@@ -1,8 +1,8 @@
 # spaCy + UDPipe
 
-This package wraps the fast and efficent [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
+This package wraps the fast and efficient [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
-[UDPipe pretrained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline.
+[UDPipe pretrained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
 Inspired by [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), this package offers slightly less accurate
 models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
 
@@ -14,7 +14,7 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-u
 pip install git+https://github.com/asajatovic/spacy-udpipe
 ```
 
-After installation, use `spacy_udpipe.download(lang)` to download the pretrained model for the desired language (if available).
+After installation, use `spacy_udpipe.download(lang)` to download the pretrained model for the desired language.
 
 ## Usage
 The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).

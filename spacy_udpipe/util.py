@@ -15,7 +15,7 @@ with open(langs_path, "r") as f:
 
 
 def _check_language(lang):
-    if not lang in LANGUAGES:
+    if lang not in LANGUAGES:
         raise Exception("'{}' language not available".format(lang))
 
 
@@ -32,7 +32,7 @@ def download(lang):
     _check_language(lang)
     try:
         _check_models_dir(lang)
-    except Exception:
+    except:
         os.makedirs(MODELS_DIR)
     if LANGUAGES[lang] in os.listdir(MODELS_DIR):
         msg = "Already downloaded a model for the" \
