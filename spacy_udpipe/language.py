@@ -107,7 +107,7 @@ class UDPipeTokenizer(object):
         udpipe_sents = self.model(text) if text else [Sentence()]
         text = " ".join(s.getText() for s in udpipe_sents)
         tokens, heads = self.get_tokens_with_heads(udpipe_sents)
-        if not len(tokens):
+        if not tokens:
             return Doc(self.vocab)
 
         words = []
@@ -208,15 +208,15 @@ class UDPipeModel:
         meta (dict): Meta-information about the UDPipe model.
         RETURNS (UDPipeModel): Language specific UDPipeModel.
         """
-        if not path:
+        if path is None:
             path = get_path(lang)
         self.model = Model.load(path)
-        if not self.model:
+        if self.model is None:
             msg = "Cannot load UDPipe model from " \
                   "file '{}'".format(path)
             raise Exception(msg)
         self._lang = lang.split('-')[0]
-        if not meta:
+        if meta is None:
             self._meta = {'authors': ("Milan Straka, "
                                       "Jana Straková"),
                           'description': "UDPipe pretrained model.",
