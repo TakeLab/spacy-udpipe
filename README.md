@@ -17,11 +17,12 @@ pip install spacy-udpipe
 After installation, use `spacy_udpipe.download(lang)` to download the pre-trained model for the desired language.
 
 ## Usage
-Make sure to first download the pre-trained model for the desired language with `spacy_udpipe.download(lang)`.
 The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
 
 ```python
 import spacy_udpipe
+
+spacy_udpipe.download("en") # download English model
 
 text = "Wikipedia is a free online encyclopedia, created and edited by volunteers around the world."
 nlp = spacy_udpipe.load("en")
