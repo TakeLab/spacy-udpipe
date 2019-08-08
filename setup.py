@@ -6,7 +6,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-URL = "https://github.com/asajatovic/spacy-udpipe"
+URL = "https://github.com/TakeLab/spacy-udpipe"
 
 # get a dict of available languages from languages.json
 root = os.path.abspath(os.path.dirname(__file__))

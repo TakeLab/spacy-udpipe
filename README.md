@@ -11,7 +11,7 @@ models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mf
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-udpipe.
 
 ```bash
-pip install git+https://github.com/asajatovic/spacy-udpipe
+pip install git+https://github.com/TakeLab/spacy-udpipe
 ```
 
 After installation, use `spacy_udpipe.download(lang)` to download the pretrained model for the desired language.
@@ -54,9 +54,9 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 
 * All annotations match with Spacy's, except for token.tag_, which map from [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank.
 
-* Full list of supported languages and models is available in [`languages.json`](https://github.com/asajatovic/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
+* Full list of supported languages and models is available in [`languages.json`](https://github.com/TakeLab/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
 
-* This package exposes a `spacy_languages` entry point in its [`setup.py`](https://github.com/asajatovic/spacy-udpipe/blob/master/setup.py) so full suport for serialization is enabled:
+* This package exposes a `spacy_languages` entry point in its [`setup.py`](https://github.com/TakeLab/spacy-udpipe/blob/master/setup.py) so full suport for serialization is enabled:
     ```python
     nlp = spacy_udpipe.load("en")
     nlp.to_disk("./udpipe-spacy-model")
