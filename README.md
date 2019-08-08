@@ -2,7 +2,7 @@
 
 This package wraps the fast and efficient [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
-[UDPipe pretrained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
+[UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
 Inspired by [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), this package offers slightly less accurate
 models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
 
@@ -11,12 +11,13 @@ models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mf
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-udpipe.
 
 ```bash
-pip install git+https://github.com/TakeLab/spacy-udpipe
+pip install spacy-udpipe
 ```
 
-After installation, use `spacy_udpipe.download(lang)` to download the pretrained model for the desired language.
+After installation, use `spacy_udpipe.download(lang)` to download the pre-trained model for the desired language.
 
 ## Usage
+Make sure to first download the pre-trained model for the desired language with `spacy_udpipe.download(lang)`.
 The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
 
 ```python
@@ -50,7 +51,7 @@ To start the tests, just run [`pytest`](https://docs.pytest.org/en/latest/conten
 Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
 
 ## Notes
-* All available pretrained models are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+* All available pre-trained models are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 * All annotations match with Spacy's, except for token.tag_, which map from [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank.
 
