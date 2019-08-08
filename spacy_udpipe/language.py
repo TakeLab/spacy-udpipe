@@ -18,9 +18,23 @@ def load(lang):
     mimicks spacy.load.
 
     lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
-    RETURNS (spacy.language.Language):  The UDPipeLanguage object.
+    RETURNS (spacy.language.Language): The UDPipeLanguage object.
     """
     model = UDPipeModel(lang)
+    nlp = UDPipeLanguage(model)
+    return nlp
+
+
+def load_from_path(lang, path, meta=None):
+    """Convenience function for initializing the Language class and loading
+    a custom UDPipe model via the path argument.
+
+    lang (unicode): ISO 639-1 language code.
+    path (unicode): Path to the UDPipe model.
+    meta (dict): Meta-information about the UDPipe model.
+    RETURNS (spacy.language.Language): The UDPipeLanguage object.
+    """
+    model = UDPipeModel(lang, path, meta)
     nlp = UDPipeLanguage(model)
     return nlp
 
@@ -93,7 +107,7 @@ class UDPipeTokenizer(object):
         udpipe_sents = self.model(text) if text else [Sentence()]
         text = " ".join(s.getText() for s in udpipe_sents)
         tokens, heads = self.get_tokens_with_heads(udpipe_sents)
-        if not len(tokens):
+        if not tokens:
             return Doc(self.vocab)
 
         words = []
@@ -186,32 +200,38 @@ class UDPipeTokenizer(object):
 
 class UDPipeModel:
 
-    def __init__(self, lang):
+    def __init__(self, lang, path=None, meta=None):
         """Load UDPipe model for given language.
 
         lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
+        path (unicode): Path to UDPipe model.
+        meta (dict): Meta-information about the UDPipe model.
         RETURNS (UDPipeModel): Language specific UDPipeModel.
         """
-        path = get_path(lang)
+        if path is None:
+            path = get_path(lang)
         self.model = Model.load(path)
-        if not self.model:
+        if self.model is None:
             msg = "Cannot load UDPipe model from " \
                   "file '{}'".format(path)
             raise Exception(msg)
         self._lang = lang.split('-')[0]
-        self._meta = {'authors': ("Milan Straka, "
-                                  "Jana Straková"),
-                      'description': "UDPipe pretrained model.",
-                      'email': 'straka@ufal.mff.cuni.cz',
-                      'lang': 'udpipe_' + self._lang,
-                      'license': 'CC BY-NC-SA 4.0',
-                      'name': path.split('/')[-1],
-                      'parent_package': 'spacy_udpipe',
-                      'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
-                      'source': 'Universal Dependencies 2.4',
-                      'url': 'http://ufal.mff.cuni.cz/udpipe',
-                      'version': '1.2.0'
-                      }
+        if meta is None:
+            self._meta = {'authors': ("Milan Straka, "
+                                      "Jana Straková"),
+                          'description': "UDPipe pretrained model.",
+                          'email': 'straka@ufal.mff.cuni.cz',
+                          'lang': 'udpipe_' + self._lang,
+                          'license': 'CC BY-NC-SA 4.0',
+                          'name': path.split('/')[-1],
+                          'parent_package': 'spacy_udpipe',
+                          'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
+                          'source': 'Universal Dependencies 2.4',
+                          'url': 'http://ufal.mff.cuni.cz/udpipe',
+                          'version': '1.2.0'
+                          }
+        else:
+            self._meta = meta
 
     def __call__(self, text):
         """Tokenize, tag and parse the text and return it in an UDPipe
