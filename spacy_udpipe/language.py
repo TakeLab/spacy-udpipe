@@ -131,11 +131,11 @@ class UDPipeTokenizer(object):
             pos.append(self.vocab.strings.add(token.upostag or ""))
             # CoNNL xpostag-s, custom for each UD treebank
             tags.append(self.vocab.strings.add(token.xpostag or ""))
-            deps.append(self.vocab.strings.add(self.__dep(token.deprel) or ""))
+            deps.append(self.vocab.strings.add(self.__dep__(token.deprel) or ""))
             lemmas.append(self.vocab.strings.add(token.lemma or ""))
             offset += len(token.form)
             span = text[offset:]
-            if i == len(tokens) - 1:
+            if i == len(tokens) - 1 or "SpaceAfter=No" in token.misc:
                 spaces.append(False)
             elif not is_aligned:
                 spaces.append(True)
@@ -156,7 +156,7 @@ class UDPipeTokenizer(object):
             doc.is_parsed = True
         return doc
 
-    def __dep(self, dep):
+    def __dep__(self, dep):
         # Ensure labels match with SpaCy
         return 'ROOT' if dep == 'root' else dep
 
