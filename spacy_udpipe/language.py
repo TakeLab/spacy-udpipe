@@ -131,7 +131,7 @@ class UDPipeTokenizer(object):
             pos.append(self.vocab.strings.add(token.upostag or ""))
             # CoNNL xpostag-s, custom for each UD treebank
             tags.append(self.vocab.strings.add(token.xpostag or ""))
-            deps.append(self.vocab.strings.add(self.__dep__(token.deprel) or ""))
+            deps.append(self.vocab.strings.add(self._dep(token.deprel) or ""))
             lemmas.append(self.vocab.strings.add(token.lemma or ""))
             offset += len(token.form)
             span = text[offset:]
@@ -156,7 +156,7 @@ class UDPipeTokenizer(object):
             doc.is_parsed = True
         return doc
 
-    def __dep__(self, dep):
+    def _dep(self, dep):
         # Ensure labels match with SpaCy
         return 'ROOT' if dep == 'root' else dep
 
