@@ -217,15 +217,15 @@ class UDPipeModel:
             raise Exception(msg)
         self._lang = lang.split('-')[0]
         if meta is None:
-            self._meta = {'authors': ("Milan Straka, "
-                                      "Jana Straková"),
+            self._meta = {'author': ("Milan Straka & "
+                                     "Jana Straková"),
                           'description': "UDPipe pretrained model.",
                           'email': 'straka@ufal.mff.cuni.cz',
                           'lang': 'udpipe_' + self._lang,
                           'license': 'CC BY-NC-SA 4.0',
                           'name': path.split('/')[-1],
                           'parent_package': 'spacy_udpipe',
-                          'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
+                          'pipeline': 'Tokenizer, Tagger, Lemmatizer, Parser',
                           'source': 'Universal Dependencies 2.4',
                           'url': 'http://ufal.mff.cuni.cz/udpipe',
                           'version': '1.2.0'
