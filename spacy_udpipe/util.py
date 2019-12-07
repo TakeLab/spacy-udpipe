@@ -32,7 +32,7 @@ def download(lang):
     _check_language(lang)
     try:
         _check_models_dir(lang)
-    except:
+    except Exception:
         os.makedirs(MODELS_DIR)
     if LANGUAGES[lang] in os.listdir(MODELS_DIR):
         msg = "Already downloaded a model for the" \

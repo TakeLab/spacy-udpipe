@@ -82,10 +82,10 @@ class UDPipeTokenizer(object):
     >>> nlp = spacy.load('/path/to/model', udpipe_model=udpipe_model)
     """
 
-    to_disk = lambda self, *args, **kwargs: None
-    from_disk = lambda self, *args, **kwargs: None
-    to_bytes = lambda self, *args, **kwargs: None
-    from_bytes = lambda self, *args, **kwargs: None
+    to_disk = lambda self, *args, **kwargs: None  # noqa: E731
+    from_disk = lambda self, *args, **kwargs: None  # noqa: E731
+    to_bytes = lambda self, *args, **kwargs: None  # noqa: E731
+    from_bytes = lambda self, *args, **kwargs: None  # noqa: E731
     _ws_pattern = re.compile(r"\s+")
 
     def __init__(self, model, vocab):
