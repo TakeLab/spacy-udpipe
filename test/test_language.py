@@ -19,7 +19,7 @@ def lang():
 
 
 def tags_equal(act, exp):
-    """Check if each actual tag in is equal to one or more expected tags."""
+    """Check if each actual tag is equal to one or more expected tags."""
     return all(a == e if isinstance(e, str) else a in e
                for a, e in zip(act, exp))
 

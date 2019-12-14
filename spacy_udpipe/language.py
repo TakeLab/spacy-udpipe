@@ -277,7 +277,7 @@ class UDPipeModel:
         return self._read(text, tokenizer)
 
     def tag(self, sentence):
-        """Assing part-of-speech tags (inplace).
+        """Assign part-of-speech tags (inplace).
 
         sentence (ufal.udpipe.Sentence): Input sentence.
         RETURNS (ufal.udpipe.Sentence): Tagged sentence.
@@ -285,7 +285,7 @@ class UDPipeModel:
         self.model.tag(sentence, self.model.DEFAULT)
 
     def parse(self, sentence):
-        """Assing dependency parse relations (inplace).
+        """Assign dependency parse relations (inplace).
 
         sentence (ufal.udpipe.Sentence): Input sentence.
         RETURNS (ufal.udpipe.Sentence): Tagged sentence.
