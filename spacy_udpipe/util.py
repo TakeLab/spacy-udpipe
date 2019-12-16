@@ -7,7 +7,7 @@ from pathlib import Path
 from spacy.language import Language
 from spacy.util import get_lang_class
 
-BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2998/"
+BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2998/"  # noqa: E501
 MODELS_DIR = os.path.join(Path(__file__).parent, "models")
 langs_path = os.path.join(Path(__file__).parent, "languages.json")
 with open(langs_path, "r") as f:
@@ -32,7 +32,7 @@ def download(lang):
     _check_language(lang)
     try:
         _check_models_dir(lang)
-    except:
+    except Exception:
         os.makedirs(MODELS_DIR)
     if LANGUAGES[lang] in os.listdir(MODELS_DIR):
         msg = "Already downloaded a model for the" \

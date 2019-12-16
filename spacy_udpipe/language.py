@@ -82,10 +82,10 @@ class UDPipeTokenizer(object):
     >>> nlp = spacy.load('/path/to/model', udpipe_model=udpipe_model)
     """
 
-    to_disk = lambda self, *args, **kwargs: None
-    from_disk = lambda self, *args, **kwargs: None
-    to_bytes = lambda self, *args, **kwargs: None
-    from_bytes = lambda self, *args, **kwargs: None
+    to_disk = lambda self, *args, **kwargs: None  # noqa: E731
+    from_disk = lambda self, *args, **kwargs: None  # noqa: E731
+    to_bytes = lambda self, *args, **kwargs: None  # noqa: E731
+    from_bytes = lambda self, *args, **kwargs: None  # noqa: E731
     _ws_pattern = re.compile(r"\s+")
 
     def __init__(self, model, vocab):
@@ -217,15 +217,15 @@ class UDPipeModel:
             raise Exception(msg)
         self._lang = lang.split('-')[0]
         if meta is None:
-            self._meta = {'authors': ("Milan Straka, "
-                                      "Jana Straková"),
+            self._meta = {'author': ("Milan Straka & "
+                                     "Jana Straková"),
                           'description': "UDPipe pretrained model.",
                           'email': 'straka@ufal.mff.cuni.cz',
                           'lang': 'udpipe_' + self._lang,
                           'license': 'CC BY-NC-SA 4.0',
                           'name': path.split('/')[-1],
                           'parent_package': 'spacy_udpipe',
-                          'pipeline': 'Tokenizer, POS Tagger, Lemmatizer, Parser',
+                          'pipeline': 'Tokenizer, Tagger, Lemmatizer, Parser',
                           'source': 'Universal Dependencies 2.4',
                           'url': 'http://ufal.mff.cuni.cz/udpipe',
                           'version': '1.2.0'
@@ -277,7 +277,7 @@ class UDPipeModel:
         return self._read(text, tokenizer)
 
     def tag(self, sentence):
-        """Assing part-of-speech tags (inplace).
+        """Assign part-of-speech tags (inplace).
 
         sentence (ufal.udpipe.Sentence): Input sentence.
         RETURNS (ufal.udpipe.Sentence): Tagged sentence.
@@ -285,7 +285,7 @@ class UDPipeModel:
         self.model.tag(sentence, self.model.DEFAULT)
 
     def parse(self, sentence):
-        """Assing dependency parse relations (inplace).
+        """Assign dependency parse relations (inplace).
 
         sentence (ufal.udpipe.Sentence): Input sentence.
         RETURNS (ufal.udpipe.Sentence): Tagged sentence.

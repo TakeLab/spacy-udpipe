@@ -43,7 +43,8 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-To start the tests, just run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
+Tests are run automatically for each pull request on the master branch.
+To start the tests locally, just run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)  © TakeLab
