@@ -2,14 +2,13 @@
 import json
 import os
 import urllib.request
-from pathlib import Path
 
 from spacy.language import Language
 from spacy.util import get_lang_class
 
 BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2998/"  # noqa: E501
-MODELS_DIR = os.path.join(Path(__file__).parent, "models")
-langs_path = os.path.join(Path(__file__).parent, "languages.json")
+MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+langs_path = os.path.join(os.path.dirname(__file__), "languages.json")
 with open(langs_path, "r") as f:
     LANGUAGES = json.load(f)
 
