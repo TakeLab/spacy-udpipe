@@ -1,12 +1,12 @@
 # coding: utf8
 import re
+import warnings
 
 import numpy
 from spacy import __version__ as spacy_version
 from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
-
 from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
                          Sentence)
 
@@ -142,10 +142,22 @@ class UDPipeTokenizer(object):
             else:
                 next_token = tokens[i + 1]
                 spaces.append(not span.startswith(next_token.form))
-        attrs = [POS, TAG, DEP, HEAD]
-        array = numpy.array(list(zip(pos, tags, deps, heads)), dtype="uint64")
-        doc = Doc(self.vocab, words=words,
-                  spaces=spaces).from_array(attrs, array)
+        try:
+            attrs = [POS, TAG, DEP, HEAD]
+            array = numpy.array(
+                list(zip(pos, tags, deps, heads)), dtype="uint64")
+            doc = Doc(self.vocab,
+                      words=words,
+                      spaces=spaces).from_array(attrs, array)
+        except ValueError:
+            attrs = [POS, DEP, HEAD]
+            array = numpy.array(list(zip(pos, deps, heads)), dtype="uint64")
+            doc = Doc(self.vocab,
+                      words=words,
+                      spaces=spaces).from_array(attrs, array)
+            warnings.warn(
+                "Created a spacy.tokens.Doc without spacy.Token.tag_(s)!"
+            )
         # Overwrite lemmas separately to prevent overwritting by spaCy
         lemma_array = numpy.array([[lemma]
                                    for lemma in lemmas], dtype="uint64")
