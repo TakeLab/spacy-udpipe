@@ -1,6 +1,5 @@
 # coding: utf8
 import re
-import warnings
 
 import numpy
 from spacy import __version__ as spacy_version
@@ -88,15 +87,17 @@ class UDPipeTokenizer(object):
     from_bytes = lambda self, *args, **kwargs: None  # noqa: E731
     _ws_pattern = re.compile(r"\s+")
 
-    def __init__(self, model, vocab):
+    def __init__(self, model, vocab, fine_POS=True):
         """Initialize the tokenizer.
 
         model (UDPipeModel): The initialized UDPipe model.
         vocab (spacy.vocab.Vocab): The vocabulary to use.
+        fine_POS (bool): If True, attempt to assign fine-grained POS tags.
         RETURNS (Tokenizer): The custom tokenizer.
         """
         self.model = model
         self.vocab = vocab
+        self.fine_POS = fine_POS
 
     def __call__(self, text):
         """Convert input text to a spaCy Doc.
@@ -142,22 +143,34 @@ class UDPipeTokenizer(object):
             else:
                 next_token = tokens[i + 1]
                 spaces.append(not span.startswith(next_token.form))
-        try:
-            attrs = [POS, TAG, DEP, HEAD]
-            array = numpy.array(
-                list(zip(pos, tags, deps, heads)), dtype="uint64")
-            doc = Doc(self.vocab,
-                      words=words,
-                      spaces=spaces).from_array(attrs, array)
-        except ValueError:
+        if self.fine_POS:
+            try:
+                attrs = [POS, TAG, DEP, HEAD]
+                array = numpy.array(
+                    list(zip(pos, tags, deps, heads)), dtype="uint64")
+                doc = Doc(self.vocab,
+                          words=words,
+                          spaces=spaces).from_array(attrs, array)
+            except ValueError as e:
+                if '[E167]' in str(e):
+                    raise ValueError(
+                        "Could not create spacy.tokens.Doc with fine-grained "
+                        "POS tags. Please update the tag map for "
+                        f"'{self.model._lang}' language. See "
+                        "https://spacy.io/usage/adding-languages#tag-map "
+                        "for details. Alternatively, if you do not care about"
+                        " fine-grained POS tags, set the "
+                        "UDPipeLanguage.tokenizer.fine_POS attribute "
+                        "to False at your own risk."
+                    )
+                else:
+                    raise e
+        else:
             attrs = [POS, DEP, HEAD]
             array = numpy.array(list(zip(pos, deps, heads)), dtype="uint64")
             doc = Doc(self.vocab,
                       words=words,
                       spaces=spaces).from_array(attrs, array)
-            warnings.warn(
-                "Created a spacy.tokens.Doc without spacy.Token.tag_(s)!"
-            )
         # Overwrite lemmas separately to prevent overwritting by spaCy
         lemma_array = numpy.array([[lemma]
                                    for lemma in lemmas], dtype="uint64")
