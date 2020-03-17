@@ -1,6 +1,5 @@
 # coding: utf8
 import re
-import warnings
 
 import numpy
 from spacy import __version__ as spacy_version
