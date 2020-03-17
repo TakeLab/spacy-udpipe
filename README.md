@@ -84,10 +84,10 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 * Known possible issues:
     * Tag map
 
-      All annotations match with Spacy's, except for `Token.tag_`, which map from [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank. Dictionary mapping strings from and to Universal Dependencies tags are defined via language-specific `tag_map.py` files (see [spaCy tag map](https://spacy.io/usage/adding-languages#tag-map) for details).
+      `Token.tag_` is a [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank. Mappings between between XPOS and Universal Dependencies POS tags should be defined in a `TAG_MAP` dictionary (located in language-specific `tag_map.py` files), along with optional morphological features. See [spaCy tag map](https://spacy.io/usage/adding-languages#tag-map) for more details.
     * Syntax iterators
 
-      In order to extract `Doc.noun_chunks`, a proper syntax iterator implementation for the language of interest is required. For details, please see [spaCy syntax iterators](https://spacy.io/usage/adding-languages#syntax-iterators).
+      In order to extract `Doc.noun_chunks`, a proper syntax iterator implementation for the language of interest is required. For more details, please see [spaCy syntax iterators](https://spacy.io/usage/adding-languages#syntax-iterators).
     * Other language-specific issues
 
-      Please see [spaCy language data](https://spacy.io/usage/adding-languages#language-data) for details regarding other language-specific data if your issue is language-specific.
+      A quick way to check language-specific defaults in [spaCy](https://spacy.io) is to visit [spaCy language support](https://spacy.io/usage/models#languages). Also, please see [spaCy language data](https://spacy.io/usage/adding-languages#language-data) for details regarding other language-specific data.
