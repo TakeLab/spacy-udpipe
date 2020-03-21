@@ -5,19 +5,19 @@ from spacy.lang.en import EnglishDefaults
 from spacy.language import BaseDefaults
 from spacy_udpipe import download
 from spacy_udpipe.language import load
-from spacy_udpipe.util import get_defaults
+from spacy_udpipe.utils import get_defaults
 
 EN = "en"
-
-
-@pytest.fixture(autouse=True)
-def download_en() -> None:
-    download(EN)
 
 
 @pytest.fixture
 def lang() -> str:
     return EN
+
+
+@pytest.fixture(autouse=True)
+def download_en() -> None:
+    download(EN)
 
 
 def tags_equal(act: List[str], exp: List[str]) -> bool:
@@ -38,9 +38,9 @@ def test_spacy_udpipe(lang: str) -> None:
     text = "Testing one, two, three. This is a test."
     doc = nlp(text=text)
 
-    pos_actual = [("VERB", "PROPN"), "NUM", "PUNCT", "NUM", "PUNCT", "NUM",
+    pos_actual = ["PROPN", "NUM", "PUNCT", "NUM", "PUNCT", "NUM",
                   "PUNCT",
-                  ("PRON", "DET"), ("AUX", "VERB"), "DET", "NOUN",
+                  "PRON", "AUX", "DET", "NOUN",
                   "PUNCT"]
     # test token attributes
     assert [t.text for t in doc] == ["Testing", "one", ",", "two", ",", "three",  # noqa: E501
@@ -57,7 +57,7 @@ def test_spacy_udpipe(lang: str) -> None:
                                      ".",
                                      "DT", "VBZ", "DT", "NN",
                                      "."]
-    assert [t.dep_ for t in doc] == ["ROOT", "nummod", "punct", "nummod", "punct", "nummod",  # noqa: E501
+    assert [t.dep_ for t in doc] == ["ROOT", "nummod", "punct", "appos", "punct", "nummod",  # noqa: E501
                                      "punct",
                                      "nsubj", "cop", "det", "ROOT",
                                      "punct"]
