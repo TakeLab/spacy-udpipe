@@ -6,36 +6,37 @@ from spacy import __version__ as spacy_version
 from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
-
 from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
                          Sentence)
 
 from .util import get_defaults, get_path
 
 
-def load(lang):
+def load(lang, **kwargs):
     """Convenience function for initializing the Language class that
     mimicks spacy.load.
 
     lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
+    kwargs: Optional config parameters.
     RETURNS (spacy.language.Language): The UDPipeLanguage object.
     """
     model = UDPipeModel(lang)
-    nlp = UDPipeLanguage(model)
+    nlp = UDPipeLanguage(model, **kwargs)
     return nlp
 
 
-def load_from_path(lang, path, meta=None):
+def load_from_path(lang, path, meta=None, **kwargs):
     """Convenience function for initializing the Language class and loading
     a custom UDPipe model via the path argument.
 
     lang (unicode): ISO 639-1 language code.
     path (unicode): Path to the UDPipe model.
     meta (dict): Meta-information about the UDPipe model.
+    kwargs: Optional config parameters.
     RETURNS (spacy.language.Language): The UDPipeLanguage object.
     """
     model = UDPipeModel(lang, path, meta)
-    nlp = UDPipeLanguage(model)
+    nlp = UDPipeLanguage(model, **kwargs)
     return nlp
 
 
@@ -57,6 +58,9 @@ class UDPipeLanguage(Language):
         """
         self.udpipe = udpipe_model
         self.Defaults = get_defaults(udpipe_model._lang)
+        ignore_tag_map = kwargs.get("ignore_tag_map", False)
+        if ignore_tag_map:
+            self.Defaults.tag_map = {}  # workaround for ValueError: [E167]
         self.vocab = self.Defaults.create_vocab()
         self.tokenizer = UDPipeTokenizer(self.udpipe, self.vocab)
         self.pipeline = []
@@ -142,10 +146,25 @@ class UDPipeTokenizer(object):
             else:
                 next_token = tokens[i + 1]
                 spaces.append(not span.startswith(next_token.form))
-        attrs = [POS, TAG, DEP, HEAD]
-        array = numpy.array(list(zip(pos, tags, deps, heads)), dtype="uint64")
-        doc = Doc(self.vocab, words=words,
-                  spaces=spaces).from_array(attrs, array)
+        try:
+            attrs = [POS, TAG, DEP, HEAD]
+            array = numpy.array(
+                list(zip(pos, tags, deps, heads)), dtype="uint64")
+            doc = Doc(self.vocab,
+                      words=words,
+                      spaces=spaces).from_array(attrs, array)
+        except ValueError as e:
+            if '[E167]' in str(e):
+                raise ValueError(
+                    "Could not properly assign morphology features. "
+                    f"Please update the tag map for '{self.model._lang}'"
+                    " language. See "
+                    "https://spacy.io/usage/adding-languages#tag-map "
+                    "for details. A quick workaround is to use the keyword "
+                    "argument ignore_tag_map=True when loading UDPipeLanguage."
+                )
+            else:
+                raise e
         # Overwrite lemmas separately to prevent overwritting by spaCy
         lemma_array = numpy.array([[lemma]
                                    for lemma in lemmas], dtype="uint64")
