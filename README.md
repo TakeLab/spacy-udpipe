@@ -2,9 +2,9 @@
 
 This package wraps the fast and efficient [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
-[UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
-Inspired by [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), this package offers slightly less accurate
-models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
+[UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-3131) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
+Inspired by [spacy-stanza](https://github.com/explosion/spacy-stanza), this package offers slightly less accurate
+models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
 
 ## Installation
 
@@ -14,10 +14,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-u
 pip install spacy-udpipe
 ```
 
-After installation, use `spacy_udpipe.download(<language ISO code>)` to download the pre-trained model for the desired language.
+After installation, use `spacy_udpipe.download()` to download the pre-trained model for the desired language.
 
 ## Usage
-The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
+The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
 
 ```python
 import spacy_udpipe
@@ -59,7 +59,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate. Tests are run automatically for each pull request on the master branch. To start the tests locally, just run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)  © Text Analysis and Knowledge Engineering Lab (TakeLab)
+[MIT](https://choosealicense.com/licenses/mit/) © Text Analysis and Knowledge Engineering Lab (TakeLab)
 
 ## Project status
 Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
