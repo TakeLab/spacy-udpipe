@@ -16,8 +16,8 @@ def lang() -> str:
 
 
 @pytest.fixture(autouse=True)
-def download_en() -> None:
-    download(EN)
+def download_lang(lang: str) -> None:
+    download(lang)
 
 
 def tags_equal(act: List[str], exp: List[str]) -> bool:
@@ -26,8 +26,8 @@ def tags_equal(act: List[str], exp: List[str]) -> bool:
                for a, e in zip(act, exp))
 
 
-def test_get_defaults() -> None:
-    assert get_defaults(EN) == EnglishDefaults
+def test_get_defaults(lang: str) -> None:
+    assert get_defaults(lang) == EnglishDefaults
     assert get_defaults("blabla") == BaseDefaults
 
 

@@ -12,11 +12,11 @@ def lang() -> str:
 
 
 @pytest.fixture(autouse=True)
-def download_lang(lang) -> None:
+def download_lang(lang: str) -> None:
     download(lang)
 
 
-def test_morph_exception_ro(lang) -> None:
+def test_morph_exception_ro(lang: str) -> None:
     assert spacy.__version__ <= SPACY_VERSION
 
     text = "Ce mai faci?"

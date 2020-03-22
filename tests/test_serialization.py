@@ -11,13 +11,13 @@ def lang() -> str:
 
 
 @pytest.fixture(autouse=True)
-def download_lang(lang) -> None:
-    download(lang)
+def download_lang(lang: str) -> None:
+    download(lang=lang)
 
 
-def test_serialization(lang) -> None:
-    nlp = load(lang)
+def test_serialization(lang: str) -> None:
+    nlp = load(lang=lang)
     nlp.to_disk("./udpipe-spacy-model")
 
-    udpipe_model = UDPipeModel(lang)
+    udpipe_model = UDPipeModel(lang=lang)
     nlp = spacy.load("./udpipe-spacy-model", udpipe_model=udpipe_model)
