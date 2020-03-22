@@ -3,7 +3,7 @@ import spacy
 from spacy_udpipe import download, load
 
 RO = "ro"
-SPACY_VERSION = "2.2.1"
+SPACY_VERSION = "2.2.4"
 
 
 @pytest.fixture
