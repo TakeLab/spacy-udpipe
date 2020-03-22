@@ -4,7 +4,7 @@ This package wraps the fast and efficient [UDPipe](http://ufal.mff.cuni.cz/udpip
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
 [UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-3131) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
 Inspired by [spacy-stanza](https://github.com/explosion/spacy-stanza), this package offers slightly less accurate
-models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
+models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models_performance) and [Stanza](https://stanfordnlp.github.io/stanza/performance.html)).
 
 ## Installation
 
