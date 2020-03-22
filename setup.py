@@ -18,8 +18,13 @@ with open(languages_path, "r") as f:
     languages = json.load(f)
 
 ENTRY_POINTS = {"spacy_languages":
-                set(f"udpipe_{s.split('-')[0]} = spacy_udpipe:UDPipeLanguage"
-                    for s in languages.keys())}
+                list(
+                    set(f"udpipe_{s.split('-')[0]} = "
+                        "spacy_udpipe:UDPipeLanguage"
+                        for s in languages.keys()
+                        )
+                )
+                }
 
 setuptools.setup(
     name="spacy_udpipe",
