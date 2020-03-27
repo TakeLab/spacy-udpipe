@@ -1,5 +1,5 @@
 from .language import UDPipeLanguage, UDPipeModel, load, load_from_path
-from .util import download
+from .utils import download
 
 __all__ = ["UDPipeLanguage", "UDPipeModel",
            "load", "load_from_path", "download"]

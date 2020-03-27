@@ -2,9 +2,9 @@
 
 This package wraps the fast and efficient [UDPipe](http://ufal.mff.cuni.cz/udpipe) language-agnostic NLP pipeline
 (via its [Python bindings](https://github.com/ufal/udpipe/tree/master/bindings/python)), so you can use
-[UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2998) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
-Inspired by [spacy-stanfordnlp](https://github.com/explosion/spacy-stanfordnlp), this package offers slightly less accurate
-models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models_performance) and [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/performance.html)).
+[UDPipe pre-trained models](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-3131) as a [spaCy](https://spacy.io/) pipeline for 50+ languages out-of-the-box.
+Inspired by [spacy-stanza](https://github.com/explosion/spacy-stanza), this package offers slightly less accurate
+models that are in turn much faster (see benchmarks for [UDPipe](https://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models_performance) and [Stanza](https://stanfordnlp.github.io/stanza/performance.html)).
 
 ## Installation
 
@@ -14,10 +14,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install spacy-u
 pip install spacy-udpipe
 ```
 
-After installation, use `spacy_udpipe.download(<language ISO code>)` to download the pre-trained model for the desired language.
+After installation, use `spacy_udpipe.download()` to download the pre-trained model for the desired language.
 
 ## Usage
-The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the nlp object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
+The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
 
 ```python
 import spacy_udpipe
@@ -56,10 +56,11 @@ Created by [Antonio Šajatović](http://github.com/asajatovic) during an interns
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please make sure to update tests as appropriate. Tests are run automatically for each pull request on the master branch. To start the tests locally, just run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
+Please make sure to update the tests as appropriate. Tests are run automatically for each pull request on the master branch.
+To start the tests locally, first, install the package with `pip install -e .`, then run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)  © Text Analysis and Knowledge Engineering Lab (TakeLab)
+[MIT](https://choosealicense.com/licenses/mit/) © Text Analysis and Knowledge Engineering Lab (TakeLab)
 
 ## Project status
 Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://takelab.fer.hr/).
@@ -67,7 +68,7 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 ## Notes
 * All available pre-trained models are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-* Full list of pre-trained models for supported languages is available in [`languages.json`](https://github.com/TakeLab/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
+* A full list of pre-trained models for supported languages is available in [`languages.json`](https://github.com/TakeLab/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
 
 * This package exposes a `spacy_languages` entry point in its [`setup.py`](https://github.com/TakeLab/spacy-udpipe/blob/master/setup.py) so full suport for serialization is enabled:
     ```python
@@ -84,7 +85,7 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 * Known possible issues:
     * Tag map
 
-      `Token.tag_` is a [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank. Mappings between between XPOS and Universal Dependencies POS tags should be defined in a `TAG_MAP` dictionary (located in language-specific `tag_map.py` files), along with optional morphological features. See [spaCy tag map](https://spacy.io/usage/adding-languages#tag-map) for more details.
+      `Token.tag_` is a [CoNLL](https://universaldependencies.org/format.html) XPOS tag (language-specific part-of-speech tag), defined for each language separately by the corresponding [Universal Dependencies](https://universaldependencies.org/) treebank. Mappings between XPOS and Universal Dependencies POS tags should be defined in a `TAG_MAP` dictionary (located in language-specific `tag_map.py` files), along with optional morphological features. See [spaCy tag map](https://spacy.io/usage/adding-languages#tag-map) for more details.
     * Syntax iterators
 
       In order to extract `Doc.noun_chunks`, a proper syntax iterator implementation for the language of interest is required. For more details, please see [spaCy syntax iterators](https://spacy.io/usage/adding-languages#syntax-iterators).

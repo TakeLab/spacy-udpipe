@@ -1,89 +1,145 @@
-# coding: utf8
 import re
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy
-from spacy import __version__ as spacy_version
 from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
+from spacy.vocab import Vocab
 from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
-                         Sentence)
+                         Sentence, Word)
 
-from .util import get_defaults, get_path
-
-
-def load(lang, **kwargs):
-    """Convenience function for initializing the Language class that
-    mimicks spacy.load.
-
-    lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
-    kwargs: Optional config parameters.
-    RETURNS (spacy.language.Language): The UDPipeLanguage object.
-    """
-    model = UDPipeModel(lang)
-    nlp = UDPipeLanguage(model, **kwargs)
-    return nlp
+from .utils import get_defaults, get_path
 
 
-def load_from_path(lang, path, meta=None, **kwargs):
-    """Convenience function for initializing the Language class and loading
-    a custom UDPipe model via the path argument.
+class UDPipeModel(object):
 
-    lang (unicode): ISO 639-1 language code.
-    path (unicode): Path to the UDPipe model.
-    meta (dict): Meta-information about the UDPipe model.
-    kwargs: Optional config parameters.
-    RETURNS (spacy.language.Language): The UDPipeLanguage object.
-    """
-    model = UDPipeModel(lang, path, meta)
-    nlp = UDPipeLanguage(model, **kwargs)
-    return nlp
+    def __init__(
+        self,
+        lang: str,
+        path: Optional[str] = None,
+        meta: Optional[Dict] = None
+    ):
+        """Load UDPipe model for given language.
 
-
-class UDPipeLanguage(Language):
-
-    def __init__(self, udpipe_model, meta=None, **kwargs):
-        """Initialize the Language class.
-
-        The language is called "udpipe_en" instead of 'en' in order to
-        avoid any potential conflicts with spaCy's built-in languages.
-        Using entry points, this enables serializing and deserializing
-        the language class and "lang": "udpipe_en" in the meta.json will
-        automatically instantiate this class if this package is available.
-
-        udpipe_model (UDPipeModel): The loaded UDPipe model.
-        meta (dict): spaCy model metadata.
-        kwargs: Optional config parameters.
-        RETURNS (spacy.language.Language): The UDPipeLanguage object.
+        lang: ISO 639-1 language code or shorthand UDPipe model name.
+        path: Path to UDPipe model.
+        meta: Meta-information about the UDPipe model.
         """
-        self.udpipe = udpipe_model
-        self.Defaults = get_defaults(udpipe_model._lang)
-        ignore_tag_map = kwargs.get("ignore_tag_map", False)
-        if ignore_tag_map:
-            self.Defaults.tag_map = {}  # workaround for ValueError: [E167]
-        self.vocab = self.Defaults.create_vocab()
-        self.tokenizer = UDPipeTokenizer(self.udpipe, self.vocab)
-        self.pipeline = []
-        self.max_length = kwargs.get("max_length", 10 ** 6)
-        self._meta = (
-            self.udpipe._meta
-            if meta is None
-            else dict(meta)
-        )
-        self._meta.setdefault("spacy_version", ">={}".format(spacy_version))
-        self._path = None
-        self._optimizer = None
+        path = path or get_path(lang=lang)
+        self.model = Model.load(path)
+        if self.model is None:
+            raise Exception(f"Cannot load UDPipe model from file '{path}'")
+        self._lang = lang.split("-")[0]
+        self._meta = meta or {"author": "Milan Straka & Jana Straková",
+                              "description": "UDPipe pretrained model.",
+                              "email": "straka@ufal.mff.cuni.cz",
+                              "lang": f"udpipe_{self._lang}",
+                              "license": "CC BY-NC-SA 4.0",
+                              "name": path.split("/")[-1],
+                              "parent_package": "spacy_udpipe",
+                              "pipeline": [
+                                  "Tokenizer", "Tagger", "Lemmatizer", "Parser"
+                              ],
+                              "source": "Universal Dependencies 2.5",
+                              "url": "http://ufal.mff.cuni.cz/udpipe",
+                              "version": "1.2.0"
+                              }
+
+    def __call__(self, text: str) -> List[Sentence]:
+        """Tokenize, tag and parse the text and return it in an UDPipe
+        representation.
+
+        text: Input text.
+        RETURNS: Processed sentences.
+        """
+        sentences = self.tokenize(text)
+        for s in sentences:
+            self.tag(s)
+            self.parse(s)
+        return sentences
+
+    def _read(self, text: str, input_format: str) -> List[Sentence]:
+        """Convert the text to an UDPipe representation.
+
+        text: Input text.
+        input_format: Desired input format.
+        RETURNS: Processed sentences.
+        """
+        input_format.setText(text)
+        error = ProcessingError()
+        sentences = []
+
+        sentence = Sentence()
+        while input_format.nextSentence(sentence, error):
+            sentences.append(sentence)
+            sentence = Sentence()
+        if error.occurred():
+            raise Exception(error.message)
+
+        return sentences
+
+    def tokenize(self, text: str) -> List[Sentence]:
+        """Tokenize input text.
+
+        text: Input text.
+        RETURNS: Processed sentences.
+        """
+        tokenizer = self.model.newTokenizer(self.model.DEFAULT)
+        if not tokenizer:
+            raise Exception("The model does not have a tokenizer")
+        return self._read(text=text, input_format=tokenizer)
+
+    def tag(self, sentence: Sentence) -> None:
+        """Assign part-of-speech tags (inplace).
+
+        sentence: Input sentence.
+        """
+        self.model.tag(sentence, self.model.DEFAULT)
+
+    def parse(self, sentence: Sentence) -> None:
+        """Assign dependency parse relations (inplace).
+
+        sentence: Input sentence.
+        """
+        self.model.parse(sentence, self.model.DEFAULT)
+
+    def read(self, text: str, in_format: str) -> List[Sentence]:
+        """Load text in the given format and return it in an UDPipe
+        representation.
+
+        text: Text to load.
+        in_format: 'conllu'|'horizontal'|'vertical'.
+        RETURNS: Processed sentences.
+        """
+        input_format = InputFormat.newInputFormat(in_format)
+        if not input_format:
+            raise Exception(f"Cannot create input format '{in_format}'")
+        return self._read(text=text, input_format=input_format)
+
+    def write(self, sentences: List[Sentence], out_format: str) -> str:
+        """Write given sentences in the required output format.
+
+        sentences: Input ufal.udpipe.Sentence-s.
+        out_format: 'conllu'|'horizontal'|'vertical'.
+        RETURNS: Sentences formatted in the out_format.
+        """
+        output_format = OutputFormat.newOutputFormat(out_format)
+        output = "".join([output_format.writeSentence(s) for s in sentences])
+        output += output_format.finishDocument()
+
+        return output
 
 
 class UDPipeTokenizer(object):
-    """As the UDPipe pipeline runs only once and does not contain separate
-    spaCy pipeline components, all the attributes are set within the tokenizer.
-    The tokenizer is currently expected to implement serialization methods
-    which are mocked here. When loading the serialized nlp object back in,
-    you can pass `udpipe_model` to spacy.load:
+    """Custom Tokenizer. As the UDPipe pipeline runs only once and does not
+    contain separate spaCy pipeline components, all the attributes are set
+    within the tokenizer. The tokenizer is currently expected to implement
+    serialization methods which are mocked here. When loading the serialized
+    nlp object back in, you can pass `udpipe_model` to spacy.load:
 
-    >>> nlp.to_disk('/path/to/model')
-    >>> nlp = spacy.load('/path/to/model', udpipe_model=udpipe_model)
+    >>> nlp.to_disk("/path/to/model")
+    >>> nlp = spacy.load("/path/to/model", udpipe_model=udpipe_model)
     """
 
     to_disk = lambda self, *args, **kwargs: None  # noqa: E731
@@ -92,27 +148,34 @@ class UDPipeTokenizer(object):
     from_bytes = lambda self, *args, **kwargs: None  # noqa: E731
     _ws_pattern = re.compile(r"\s+")
 
-    def __init__(self, model, vocab):
+    def __init__(
+        self,
+        model: UDPipeModel,
+        vocab: Vocab
+    ):
         """Initialize the tokenizer.
 
-        model (UDPipeModel): The initialized UDPipe model.
-        vocab (spacy.vocab.Vocab): The vocabulary to use.
-        RETURNS (Tokenizer): The custom tokenizer.
+        model: The initialized UDPipe model.
+        vocab: The vocabulary to use.
         """
         self.model = model
         self.vocab = vocab
 
-    def __call__(self, text):
+    def _dep(self, d: str) -> str:
+        # Ensure labels match with SpaCy
+        return d.upper() if d == "root" else d
+
+    def __call__(self, text: str) -> Doc:
         """Convert input text to a spaCy Doc.
 
-        text (unicode): The text to process.
-        RETURNS (spacy.tokens.Doc): The spaCy Doc object.
+        text: The text to process.
+        RETURNS: The spaCy Doc object.
         """
-        udpipe_sents = self.model(text) if text else [Sentence()]
+        udpipe_sents = self.model(text=text) if text else [Sentence()]
         text = " ".join(s.getText() for s in udpipe_sents)
-        tokens, heads = self.get_tokens_with_heads(udpipe_sents)
+        tokens, heads = self._get_tokens_with_heads(udpipe_sents=udpipe_sents)
         if not tokens:
-            return Doc(self.vocab)
+            return Doc(vocab=self.vocab)
 
         words = []
         spaces = []
@@ -121,7 +184,7 @@ class UDPipeTokenizer(object):
         deps = []
         lemmas = []
         offset = 0
-        is_aligned = self.check_aligned(text, tokens)
+        is_aligned = self._check_aligned(text=text, tokens=tokens)
         for i, token in enumerate(tokens):
             span = text[offset:]
             if not span:
@@ -149,7 +212,9 @@ class UDPipeTokenizer(object):
         try:
             attrs = [POS, TAG, DEP, HEAD]
             array = numpy.array(
-                list(zip(pos, tags, deps, heads)), dtype="uint64")
+                list(zip(pos, tags, deps, heads)),
+                dtype="uint64"
+            )
             doc = Doc(self.vocab,
                       words=words,
                       spaces=spaces).from_array(attrs, array)
@@ -166,40 +231,40 @@ class UDPipeTokenizer(object):
             else:
                 raise e
         # Overwrite lemmas separately to prevent overwritting by spaCy
-        lemma_array = numpy.array([[lemma]
-                                   for lemma in lemmas], dtype="uint64")
-        doc.from_array([LEMMA], lemma_array)
-        if any(pos) and any(tags):
-            doc.is_tagged = True
-        if any(deps):
-            doc.is_parsed = True
+        lemma_array = numpy.array(
+            [[lemma] for lemma in lemmas],
+            dtype="uint64"
+        )
+        doc.from_array(attrs=[LEMMA], array=lemma_array)
+        doc.is_tagged = bool(any(pos) and any(tags))
+        doc.is_parsed = bool(any(deps))
         return doc
 
-    def _dep(self, dep):
-        # Ensure labels match with SpaCy
-        return 'ROOT' if dep == 'root' else dep
-
-    def pipe(self, texts):
+    def pipe(self, texts: Iterable[str]) -> Iterable[Doc]:
         """Tokenize a stream of texts.
 
         texts: A sequence of unicode texts.
-        YIELDS (spacy.tokens.Doc): A sequence of Doc objects, in order.
+        YIELDS: A sequence of Doc objects, in order.
         """
         for text in texts:
             yield self(text)
 
-    def get_tokens_with_heads(self, udpipe_sents):
+    def _get_tokens_with_heads(
+            self,
+            udpipe_sents: List[Sentence]
+    ) -> Tuple[List[str], List[int]]:
         """Flatten the tokens in the UDPipe sentence representations and extract
         the token indices of the sentence start tokens to is_sent_start set.
 
-        udpipe_sents (list): The processed ufal.udpipe.Sentence-s.
-        RETURNS (list): The tokens (words).
+        udpipe_sents: The processed sentences.
+        RETURNS: The tokens (words).
         """
         tokens = []
         heads = []
         offset = 0
         for sentence in udpipe_sents:
-            for token in sentence.words[1:]:  # ignore <root>
+            words = sentence.words[1:]  # Ignore <root>
+            for token in words:
                 # Calculate the absolute token index in the doc,
                 # then the *relative* index of the head, -1 for zero-indexed
                 # and if the governor is 0 (root), we leave it at 0
@@ -209,131 +274,83 @@ class UDPipeTokenizer(object):
                     head = 0
                 heads.append(head)
                 tokens.append(token)
-            offset += len(sentence.words) - 1  # ignore <root>
+            offset += len(words)
         return tokens, heads
 
-    def check_aligned(self, text, tokens):
+    def _check_aligned(self, text: str, tokens: List[Word]) -> bool:
+        """Check if tokens are aligned with text.
+
+        text: Text to check.
+        tokens: Tokens to check.
+        RETURNS: True iff text and tokens are aligned.
+        """
         token_texts = "".join(t.form for t in tokens)
         return re.sub(self._ws_pattern, "", text) == token_texts
 
 
-class UDPipeModel:
+class UDPipeLanguage(Language):
 
-    def __init__(self, lang, path=None, meta=None):
-        """Load UDPipe model for given language.
+    def __init__(
+        self,
+        udpipe_model: UDPipeModel,
+        meta: Optional[Dict] = None,
+        **kwargs
+    ):
+        """Initialize the Language class.
 
-        lang (unicode): ISO 639-1 language code or shorthand UDPipe model name.
-        path (unicode): Path to UDPipe model.
-        meta (dict): Meta-information about the UDPipe model.
-        RETURNS (UDPipeModel): Language specific UDPipeModel.
+        The language is called "udpipe_en" instead of "en" in order to
+        avoid any potential conflicts with spaCy's built-in languages.
+        Using entry points, this enables serializing and deserializing
+        the language class and "lang": "udpipe_en" in the meta.json will
+        automatically instantiate this class if this package is available.
+
+        udpipe_model: The loaded UDPipe model.
+        meta: spaCy model metadata.
+        kwargs: Optional config parameters.
         """
-        if path is None:
-            path = get_path(lang)
-        self.model = Model.load(path)
-        if self.model is None:
-            msg = "Cannot load UDPipe model from " \
-                  "file '{}'".format(path)
-            raise Exception(msg)
-        self._lang = lang.split('-')[0]
-        if meta is None:
-            self._meta = {'author': ("Milan Straka & "
-                                     "Jana Straková"),
-                          'description': "UDPipe pretrained model.",
-                          'email': 'straka@ufal.mff.cuni.cz',
-                          'lang': 'udpipe_' + self._lang,
-                          'license': 'CC BY-NC-SA 4.0',
-                          'name': path.split('/')[-1],
-                          'parent_package': 'spacy_udpipe',
-                          'pipeline': 'Tokenizer, Tagger, Lemmatizer, Parser',
-                          'source': 'Universal Dependencies 2.4',
-                          'url': 'http://ufal.mff.cuni.cz/udpipe',
-                          'version': '1.2.0'
-                          }
-        else:
-            self._meta = meta
+        self.udpipe = udpipe_model
+        self.Defaults = get_defaults(lang=udpipe_model._lang)
+        self.lang = f"udpipe_{udpipe_model._lang}"
+        ignore_tag_map = kwargs.get("ignore_tag_map", False)
+        if ignore_tag_map:
+            self.Defaults.tag_map = {}  # workaround for ValueError: [E167]
+        self.vocab = self.Defaults.create_vocab()
+        self.tokenizer = UDPipeTokenizer(model=self.udpipe, vocab=self.vocab)
+        self.pipeline = []
+        self.max_length = kwargs.get("max_length", 10 ** 6)
+        self._meta = self.udpipe._meta if meta is None else dict(meta)
+        self._path = None
+        self._optimizer = None
 
-    def __call__(self, text):
-        """Tokenize, tag and parse the text and return it in an UDPipe
-        representation.
 
-        text (unicode): Input text.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s."""
-        sentences = self.tokenize(text)
-        for s in sentences:
-            self.tag(s)
-            self.parse(s)
-        return sentences
+def load(lang: str, **kwargs) -> UDPipeLanguage:
+    """Convenience function for initializing the Language class that
+    mimicks spacy.load.
 
-    def _read(self, text, input_format):
-        """Convert the text to a UDPipe representation.
+    lang: ISO 639-1 language code or shorthand UDPipe model name.
+    kwargs: Optional config parameters.
+    RETURNS: The UDPipeLanguage object.
+    """
+    model = UDPipeModel(lang=lang, path=None, meta=None)
+    nlp = UDPipeLanguage(udpipe_model=model, meta=model._meta, **kwargs)
+    return nlp
 
-        text (unicode): Input text.
-        input_format (unicode): Desired input format.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
-        """
-        input_format.setText(text)
-        error = ProcessingError()
-        sentences = []
 
-        sentence = Sentence()
-        while input_format.nextSentence(sentence, error):
-            sentences.append(sentence)
-            sentence = Sentence()
-        if error.occurred():
-            raise Exception(error.message)
+def load_from_path(
+    lang: str,
+    path: str,
+    meta: Optional[Dict] = {"description": "custom model"},
+    **kwargs
+) -> UDPipeLanguage:
+    """Convenience function for initializing the Language class and loading
+    a custom UDPipe model via the path argument.
 
-        return sentences
-
-    def tokenize(self, text):
-        """Tokenize the text.
-
-        text (unicode): Input text.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
-        """
-        tokenizer = self.model.newTokenizer(self.model.DEFAULT)
-        if not tokenizer:
-            raise Exception("The model does not have a tokenizer")
-        return self._read(text, tokenizer)
-
-    def tag(self, sentence):
-        """Assign part-of-speech tags (inplace).
-
-        sentence (ufal.udpipe.Sentence): Input sentence.
-        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
-        """
-        self.model.tag(sentence, self.model.DEFAULT)
-
-    def parse(self, sentence):
-        """Assign dependency parse relations (inplace).
-
-        sentence (ufal.udpipe.Sentence): Input sentence.
-        RETURNS (ufal.udpipe.Sentence): Tagged sentence.
-        """
-        self.model.parse(sentence, self.model.DEFAULT)
-
-    def read(self, text, in_format):
-        """Load text in the given format and return list of Sentence-s.
-
-        text (unicode): Text to load.
-        in_format (unicode): One of conllu|horizontal|vertical.
-        RETURNS (list): Processed ufal.udpipe.Sentence-s.
-        """
-        input_format = InputFormat.newInputFormat(in_format)
-        if not input_format:
-            msg = "Cannot create input format " \
-                  "'{}'".format(in_format)
-            raise Exception(msg)
-        return self._read(text, input_format)
-
-    def write(self, sentences, out_format):
-        """Write given sentences in the required output format.
-
-        sentences (list): Input ufal.udpipe.Sentence-s.
-        out_format (unicode): One of conllu|horizontal|vertical.
-        RETURNS (unicode): Sentences in the desired format.
-        """
-        output_format = OutputFormat.newOutputFormat(out_format)
-        output = ''.join([output_format.writeSentence(s) for s in sentences])
-        output += output_format.finishDocument()
-
-        return output
+    lang: ISO 639-1 language code or shorthand UDPipe model name.
+    path: Path to the UDPipe model.
+    meta: Optional meta-information about the UDPipe model.
+    kwargs: Optional config parameters.
+    RETURNS: The UDPipeLanguage object.
+    """
+    model = UDPipeModel(lang=lang, path=path, meta=meta)
+    nlp = UDPipeLanguage(udpipe_model=model, meta=model._meta, **kwargs)
+    return nlp
