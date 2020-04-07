@@ -185,6 +185,12 @@ class UDPipeTokenizer(object):
         lemmas = []
         offset = 0
         is_aligned = self._check_aligned(text=text, tokens=tokens)
+        if not is_aligned:
+            text=""
+            for token in tokens:
+                text+=token.form
+                if not "SpaceAfter=No" in token.misc:
+                    text+=" "
         for i, token in enumerate(tokens):
             span = text[offset:]
             if not span:
