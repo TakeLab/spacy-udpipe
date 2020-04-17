@@ -34,6 +34,12 @@ def test_spacy_udpipe(lang: str) -> None:
     
     assert [t.orth_ for t in doc] == ["Attention", "à", "les", "articles", "contractés", "!"]
     
-    pos = [{"INTJ", "NOUN"}, {"ADP"}, {"DET"}, {"NOUN"}, {"VERB"}, {"PUNCT"}]
+    pos = [{"INTJ", "NOUN"}, {"ADP"}, {"DET"}, {"NOUN"}, {"VERB", "ADJ"}, {"PUNCT"}]
     for i, t in enumerate(doc):
         assert t.pos_ in pos[i]
+
+    assert [t.head.i for t in doc] == [0, 3, 3, 0, 3, 0]
+
+    dep = [{"ROOT", "root"}, {"case"}, {"det"}, {"nmod", "obl", "obl:arg"}, {"acl", "amod"}, {"punct"}]
+    for i, t in enumerate(doc):
+        assert t.dep_ in dep[i]
