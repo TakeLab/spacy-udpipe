@@ -26,7 +26,7 @@ ENTRY_POINTS = {"spacy_languages":
 
 setuptools.setup(
     name="spacy_udpipe",
-    version="0.2.0",
+    version="0.2.1",
     description="Use fast UDPipe models directly in spaCy",
     long_description=readme,
     long_description_content_type="text/markdown",
