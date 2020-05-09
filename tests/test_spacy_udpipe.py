@@ -1,3 +1,5 @@
+import tempfile
+
 import pytest
 import spacy
 
@@ -19,11 +21,12 @@ def download_lang(lang: str) -> None:
 
 
 def test_serialization(lang: str) -> None:
-    nlp = load(lang=lang)
-    nlp.to_disk("./udpipe-spacy-model")
+    with tempfile.TemporaryDirectory() as tdir:
+        nlp = load(lang=lang)
+        nlp.to_disk(tdir)
 
-    udpipe_model = UDPipeModel(lang=lang)
-    nlp = spacy.load("./udpipe-spacy-model", udpipe_model=udpipe_model)
+        udpipe_model = UDPipeModel(lang=lang)
+        nlp = spacy.load(tdir, udpipe_model=udpipe_model)
 
 
 def test_pipe(lang: str) -> None:
