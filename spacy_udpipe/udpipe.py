@@ -2,7 +2,7 @@ import re
 from typing import Dict, List, Optional, Union
 
 from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
-                         Sentence)
+                         Sentence, Word)
 
 from .utils import get_path
 
@@ -33,14 +33,15 @@ class PretokenizedInputFormat(object):
             line = next(self.lines)
         except StopIteration:
             return False
-        tokens = line.split("\t") + [str(None)]  # EOS token
-        for i, (token, next_token) in enumerate(zip(tokens[:-1], tokens[1:])):
+        tokens = line.split("\t")
+        prev_word = Word()
+        for token in tokens:
             word = sentence.addWord(token)
-            # word.id = i
-            if re.match(r"\W", next_token):
-                # leave no space after current token iff next token
+            if re.match(r"\W", token):
+                # leave no space after previous token iff current token
                 # is non-alphanumeric (i.e. punctuation)
-                word.misc = self.NO_SPACE
+                prev_word.misc = self.NO_SPACE
+            prev_word = word
         return True
 
 
@@ -135,6 +136,8 @@ class UDPipeModel(object):
             str             : raw text,
             List[str]       : presegmented text,
             List[List[str]] : pretokenized text.
+        Note: both presegmented and pretokenized text can not contain
+              newline or tab characters.
         RETURNS: Processed sentences.
         """
         if isinstance(text, str):
@@ -158,7 +161,10 @@ class UDPipeModel(object):
                 )
             )
         if not tokenizer:
-            raise Exception("The model does not have a tokenizer")
+            raise Exception(
+                "The model does not have a tokenizer "
+                f"so it can not tokenize input: {text}"
+            )
         return self._read(text=text, input_format=tokenizer)
 
     def tag(self, sentence: Sentence) -> None:
