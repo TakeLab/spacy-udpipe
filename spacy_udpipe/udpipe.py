@@ -1,10 +1,13 @@
 import re
 from typing import Dict, List, Optional, Union
 
-from ufal.udpipe import (InputFormat, Model, OutputFormat, ProcessingError,
-                         Sentence, Word)
+from ufal.udpipe import InputFormat
+from ufal.udpipe import Model as _Model
+from ufal.udpipe import OutputFormat, ProcessingError, Sentence, Word
 
 from .utils import get_path
+
+NO_SPACE = "SpaceAfter=No"
 
 
 class PretokenizedInputFormat(object):
@@ -14,7 +17,6 @@ class PretokenizedInputFormat(object):
     due to pure Python implementation. Mocks InputFormat API to enable
     plug-and-play behaviour.
     """
-    NO_SPACE = "SpaceAfter=No"
 
     def setText(self, text: str) -> None:
         """Store text in iterable lines for tokenization.
@@ -40,9 +42,48 @@ class PretokenizedInputFormat(object):
             if re.match(r"\W", token):
                 # leave no space after previous token iff current token
                 # is non-alphanumeric (i.e. punctuation)
-                prev_word.misc = self.NO_SPACE
+                prev_word.misc = NO_SPACE
             prev_word = word
         return True
+
+
+class Model(_Model):
+    """Model wrapper with pickling support, enabling multiprocess execution."""
+
+    def __init__(self, path: str):
+        self.path = path
+        self._model = super().load(path)
+        if self._model is None:
+            raise Exception(f"Cannot load UDPipe model from file '{path}'")
+
+    def __reduce__(self):
+        # pickle support
+        return (self.__class__, (self.path,))
+
+    @property
+    def DEFAULT(self) -> InputFormat:
+        return self._model.DEFAULT
+
+    @property
+    def TOKENIZER_NORMALIZED_SPACES(self) -> InputFormat:
+        return self._model.TOKENIZER_NORMALIZED_SPACES
+
+    @property
+    def TOKENIZER_PRESEGMENTED(self) -> InputFormat:
+        return self._model.TOKENIZER_PRESEGMENTED
+
+    @property
+    def TOKENIZER_RANGES(self) -> InputFormat:
+        return self._model.TOKENIZER_RANGES
+
+    def newTokenizer(self, input_format: InputFormat) -> None:
+        return self._model.newTokenizer(input_format)
+
+    def parse(self, sentence: Sentence, input_format: InputFormat) -> None:
+        return self._model.parse(sentence, input_format)
+
+    def tag(self, sentence: Sentence, input_format: InputFormat) -> None:
+        return self._model.tag(sentence, input_format)
 
 
 class UDPipeModel(object):
@@ -60,9 +101,7 @@ class UDPipeModel(object):
         meta: Meta-information about the UDPipe model.
         """
         path = path or get_path(lang=lang)
-        self.model = Model.load(path)
-        if self.model is None:
-            raise Exception(f"Cannot load UDPipe model from file '{path}'")
+        self.model = Model(path)
         self._lang = lang.split("-")[0]
         self._meta = meta or {"author": "Milan Straka & Jana Straková",
                               "description": "UDPipe pretrained model.",

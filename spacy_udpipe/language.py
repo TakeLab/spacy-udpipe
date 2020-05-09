@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import re
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 
@@ -8,7 +9,7 @@ from spacy.tokens import Doc
 from spacy.vocab import Vocab
 from ufal.udpipe import Sentence, Word
 
-from .udpipe import UDPipeModel
+from .udpipe import NO_SPACE, UDPipeModel
 from .utils import get_defaults
 
 
@@ -80,7 +81,7 @@ class UDPipeTokenizer(object):
             text = ""
             for token in tokens:
                 text += token.form
-                if "SpaceAfter=No" not in token.misc:
+                if NO_SPACE not in token.misc:
                     text += " "
         for i, token in enumerate(tokens):
             span = text[offset:]
@@ -99,7 +100,7 @@ class UDPipeTokenizer(object):
             lemmas.append(self.vocab.strings.add(token.lemma or ""))
             offset += len(token.form)
             span = text[offset:]
-            if i == len(tokens) - 1 or "SpaceAfter=No" in token.misc:
+            if i == len(tokens) - 1 or NO_SPACE in token.misc:
                 spaces.append(False)
             elif not is_aligned:
                 spaces.append(True)
@@ -143,15 +144,18 @@ class UDPipeTokenizer(object):
             Iterable[str],
             Iterable[List[str]],
             Iterable[List[List[str]]]
-        ]
+        ],
+        n_process: Optional[int] = 1
     ) -> Iterable[Doc]:
         """Tokenize a stream of texts.
 
         texts: A sequence of unicode texts (raw, presegmented or pretokenized).
+        n_process: Number of processes to use.
         YIELDS: A sequence of Doc objects, in order.
         """
-        for text in texts:
-            yield self(text)
+        n_process = mp.cpu_count() if n_process == -1 else n_process
+        with mp.Pool(processes=n_process) as pool:
+            return pool.map(self.__call__, texts)
 
     def _get_tokens_with_heads(
             self,
