@@ -34,6 +34,11 @@ for token in doc:
 ```
 As all attributes are computed once and set in the custom [`Tokenizer`](https://spacy.io/api/tokenizer), the `Language.pipeline` is empty.
 
+The type of `text` can be one of the following:
+  * unprocessed: `str`,
+  * presegmented: `List[str]`,
+  * pretokenized: `List[List[str]]`.
+
 #### Loading a custom model
 The following code snippet demonstrates how to load a custom `UDPipe` model (for the Croatian language):
 ```python

@@ -31,7 +31,7 @@ def test_get_defaults(lang: str) -> None:
     assert get_defaults("blabla") == BaseDefaults
 
 
-def test_spacy_udpipe(lang: str) -> None:
+def test_spacy_udpipe_default(lang: str) -> None:
     nlp = load(lang=lang)
     assert nlp._meta["lang"] == f"udpipe_{lang}"
 
@@ -75,3 +75,40 @@ def test_spacy_udpipe(lang: str) -> None:
     assert [t.pos_ for t in docs[0]] == ["PROPN", "NUM", "PUNCT", "NUM", "PUNCT", "NUM", "PUNCT"]  # noqa: E501
     assert docs[1].text == "This is a test."
     assert tags_equal(act=pos_actual[-5:], exp=[t.pos_ for t in docs[1]])
+
+
+def test_spacy_udpipe_presegmented(lang: str) -> None:
+    nlp = load(lang=lang)
+    assert nlp._meta["lang"] == f"udpipe_{lang}"
+
+    text = "Testing one, two, three. This is a test."
+    doc = nlp(text=text)
+    doc_json = doc.to_json()
+
+    text_pre = ["Testing one, two, three.", "This is a test."]
+    doc_pre = nlp(text=text_pre)
+    doc_pre_json = doc_pre.to_json()
+
+    assert doc_json["text"] == doc_pre_json["text"]
+    assert doc_json["sents"] == doc_pre_json["sents"]
+    assert doc_json["tokens"] == doc_pre_json["tokens"]
+
+
+def test_spacy_udpipe_pretokenized(lang: str) -> None:
+    nlp = load(lang=lang)
+    assert nlp._meta["lang"] == f"udpipe_{lang}"
+
+    text = "Testing one, two, three. This is a test."
+    doc = nlp(text=text)
+    doc_json = doc.to_json()
+
+    text_pre = [
+        ["Testing", "one", ",", "two", ",", "three", "."],
+        ["This", "is", "a", "test", "."]
+    ]
+    doc_pre = nlp(text=text_pre)
+    doc_pre_json = doc_pre.to_json()
+
+    assert doc_json["text"] == doc_pre_json["text"]
+    assert doc_json["sents"] == doc_pre_json["sents"]
+    assert doc_json["tokens"] == doc_pre_json["tokens"]
