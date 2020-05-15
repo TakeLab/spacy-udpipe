@@ -180,6 +180,7 @@ class UDPipeModel(object):
         RETURNS: Processed sentences.
         """
         if isinstance(text, str):
+            text = text.strip()
             tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         elif isinstance(text, list):
             if isinstance(text[0], list):
@@ -193,7 +194,7 @@ class UDPipeModel(object):
         else:
             raise TypeError(
                 "\n".join(
-                    ("Input type must be one of following:",
+                    (f"Input type is {type(text)}, but must be one:",
                      "str             : raw text",
                      "List[str]       : presegmented text",
                      "List[List[str]] : pretokenized text")

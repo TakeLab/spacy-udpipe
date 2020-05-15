@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import re
 from typing import Dict, Iterable, List, Optional, Tuple, Union
+import warnings
 
 import numpy
 from spacy.language import Language
@@ -229,6 +230,12 @@ class UDPipeLanguage(Language):
         self._meta = self.udpipe._meta if meta is None else dict(meta)
         self._path = None
         self._optimizer = None
+
+    def pipe(self, texts, **kwargs):
+        warnings.warn("Multiprocessing is not supported!")
+        if "n_process" in kwargs:
+            kwargs["n_process"] = 1
+        return super().pipe(texts=texts, **kwargs)
 
 
 def load(lang: str, **kwargs) -> UDPipeLanguage:
