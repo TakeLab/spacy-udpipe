@@ -33,14 +33,17 @@ def test_pipe(lang: str) -> None:
     nlp = load(lang=lang)
     assert nlp._meta["lang"] == f"udpipe_{lang}"
 
-    text = "spacy-udpipe package now support multiprocess execution."
+    text = "spacy-udpipe still does not support multiprocess execution."
     doc = nlp(text)
+    del nlp
 
-    texts = [text for _ in range(10)]
+    nlp = load(lang=lang)
+    texts = [text for _ in range(2)]
     docs = list(nlp.pipe(texts, n_process=-1))
 
     assert len(docs) == len(texts)
     assert docs[0].to_json() == doc.to_json()
+    assert docs[-1].to_json() == doc.to_json()
 
 
 def test_morph_exception() -> None:

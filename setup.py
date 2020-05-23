@@ -3,6 +3,8 @@ import os
 
 import setuptools
 
+from spacy_udpipe import __version__
+
 URL = "https://github.com/TakeLab/spacy-udpipe"
 
 with open("README.md", "r") as f:
@@ -26,7 +28,7 @@ ENTRY_POINTS = {"spacy_languages":
 
 setuptools.setup(
     name="spacy_udpipe",
-    version="0.3.0",
+    version=__version__,
     description="Use fast UDPipe models directly in spaCy",
     long_description=readme,
     long_description_content_type="text/markdown",

@@ -193,7 +193,7 @@ class UDPipeModel(object):
         else:
             raise TypeError(
                 "\n".join(
-                    ("Input type must be one of following:",
+                    (f"Input type is {type(text)}, but must be one:",
                      "str             : raw text",
                      "List[str]       : presegmented text",
                      "List[List[str]] : pretokenized text")
