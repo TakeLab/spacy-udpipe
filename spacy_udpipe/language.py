@@ -232,9 +232,9 @@ class UDPipeLanguage(Language):
         self._optimizer = None
 
     def pipe(self, texts, **kwargs):
-        warnings.warn("Multiprocessing is not supported!")
         if "n_process" in kwargs:
             kwargs["n_process"] = 1
+            warnings.warn("Multiprocessing is not supported, set n_process=1!")
         return super().pipe(texts=texts, **kwargs)
 
 

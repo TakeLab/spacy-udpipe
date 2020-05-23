@@ -180,7 +180,6 @@ class UDPipeModel(object):
         RETURNS: Processed sentences.
         """
         if isinstance(text, str):
-            text = text.strip()
             tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         elif isinstance(text, list):
             if isinstance(text[0], list):
