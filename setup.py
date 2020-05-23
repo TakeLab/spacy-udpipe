@@ -3,7 +3,23 @@ import os
 
 import setuptools
 
-from spacy_udpipe import __version__
+
+def get_version(fname: str) -> str:
+    full_path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        "spacy_udpipe",
+        fname
+    )
+    with open(full_path, "r") as fp:
+        for l in fp:
+            if l.startswith("__version__"):
+                delim = '"' if '"' in l else "'"
+                return l.split(delim)[1]
+            else:
+                raise RuntimeError(
+                    "Unable to find version string."
+                )
+
 
 URL = "https://github.com/TakeLab/spacy-udpipe"
 
@@ -28,7 +44,7 @@ ENTRY_POINTS = {"spacy_languages":
 
 setuptools.setup(
     name="spacy_udpipe",
-    version=__version__,
+    version=get_version("__init__.py"),
     description="Use fast UDPipe models directly in spaCy",
     long_description=readme,
     long_description_content_type="text/markdown",
