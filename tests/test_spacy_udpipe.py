@@ -7,7 +7,7 @@ from spacy_udpipe import UDPipeModel, download, load
 
 EN = "en"
 RO = "ro"
-SPACY_VERSION = "2.2.4"
+SPACY_VERSION = "3.0.0"
 
 
 @pytest.fixture
