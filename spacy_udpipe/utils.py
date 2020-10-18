@@ -14,7 +14,7 @@ with open(languages_path, "r") as f:
 
 def _check_language(lang: str) -> None:
     if lang not in LANGUAGES:
-        raise Exception("'{}' language not available".format(lang))
+        raise Exception(f"'{lang}' language not available")
 
 
 def _check_models_dir(lang: str) -> None:
