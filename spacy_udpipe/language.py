@@ -139,7 +139,7 @@ class UDPipeTokenizer(object):
         )
         doc.from_array(attrs=[LEMMA], array=lemma_array)
         if SPACY_V3:
-            for i,j in enumerate(morphs):
+            for i, j in enumerate(morphs):
                 if j != "_" and j != "":
                     doc[i].set_morph(j)
         else:
