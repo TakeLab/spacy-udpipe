@@ -15,6 +15,7 @@ from .utils import get_defaults
 
 SPACY_V3 = hasattr(Language, "component")
 
+
 class UDPipeTokenizer(object):
     """Custom Tokenizer. As the UDPipe pipeline runs only once and does not
     contain separate spaCy pipeline components, all the attributes are set
