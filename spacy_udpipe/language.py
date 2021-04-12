@@ -102,7 +102,8 @@ class UDPipeTokenizer(object):
             tags.append(self.vocab.strings.add(token.xpostag or ""))
             deps.append(self.vocab.strings.add(self._dep(token.deprel) or ""))
             lemmas.append(self.vocab.strings.add(token.lemma or ""))
-            morphs.append(token.feats or "")
+            if SPACY_V3:
+                morphs.append(token.feats or "")
             offset += len(token.form)
             span = text[offset:]
             if i == len(tokens) - 1 or NO_SPACE in token.misc:
