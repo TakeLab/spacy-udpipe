@@ -9,11 +9,11 @@ from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
 from spacy.vocab import Vocab
 from ufal.udpipe import Sentence, Word
-SPACY_V3 = hasattr(Language, "component")
 
 from .udpipe import NO_SPACE, UDPipeModel
 from .utils import get_defaults
 
+SPACY_V3 = hasattr(Language, "component")
 
 class UDPipeTokenizer(object):
     """Custom Tokenizer. As the UDPipe pipeline runs only once and does not
