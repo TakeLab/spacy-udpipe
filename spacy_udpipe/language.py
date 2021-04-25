@@ -8,12 +8,13 @@ from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
 from spacy.vocab import Vocab
+from spacy import __version__ as spacy_version
 from ufal.udpipe import Sentence, Word
 
 from .udpipe import NO_SPACE, UDPipeModel
 from .utils import get_defaults
 
-SPACY_V3 = hasattr(Language, "component")
+SPACY_V3 = spacy_version.startswith("3.")
 
 
 class UDPipeTokenizer(object):
