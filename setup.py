@@ -54,7 +54,7 @@ setuptools.setup(
     license="MIT",
     keywords="nlp udpipe spacy python",
     packages=setuptools.find_packages(),
-    install_requires=["spacy>=2.1.0,<4.0.0", "ufal.udpipe>=1.2.0"],
+    install_requires=["spacy>=2.1.0,<3.0.0", "ufal.udpipe>=1.2.0"],
     python_requires=">=3.6",
     entry_points=ENTRY_POINTS,
     tests_require=["pytest>=5.0.0"],
