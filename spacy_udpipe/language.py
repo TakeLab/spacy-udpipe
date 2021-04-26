@@ -236,9 +236,12 @@ class UDPipeLanguage(Language):
             self.Defaults.tag_map = {}  # workaround for ValueError: [E167]
         if SPACY_V3:
             from spacy.vocab import create_vocab
+            from spacy.language import DEFAULT_CONFIG
             self.vocab = create_vocab(udpipe_model._lang, self.Defaults)
+            self.batch_size = 1000
             self._components = []
             self._disabled = set()
+            self._config = DEFAULT_CONFIG.merge(self.default_config)
         else:
             self.vocab = self.Defaults.create_vocab()
             self.pipeline = []
