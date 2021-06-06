@@ -8,10 +8,13 @@ from spacy.language import Language
 from spacy.symbols import DEP, HEAD, LEMMA, POS, TAG
 from spacy.tokens import Doc
 from spacy.vocab import Vocab
+from spacy import __version__ as spacy_version
 from ufal.udpipe import Sentence, Word
 
 from .udpipe import NO_SPACE, UDPipeModel
 from .utils import get_defaults
+
+SPACY_V3 = spacy_version.startswith("3.")
 
 
 class UDPipeTokenizer(object):
@@ -76,6 +79,7 @@ class UDPipeTokenizer(object):
         tags = []
         deps = []
         lemmas = []
+        morphs = []
         offset = 0
         is_aligned = self._check_aligned(text=text, tokens=tokens)
         if not is_aligned:
@@ -99,6 +103,8 @@ class UDPipeTokenizer(object):
             tags.append(self.vocab.strings.add(token.xpostag or ""))
             deps.append(self.vocab.strings.add(self._dep(token.deprel) or ""))
             lemmas.append(self.vocab.strings.add(token.lemma or ""))
+            if SPACY_V3:
+                morphs.append(token.feats or "")
             offset += len(token.form)
             span = text[offset:]
             if i == len(tokens) - 1 or NO_SPACE in token.misc:
@@ -135,8 +141,13 @@ class UDPipeTokenizer(object):
             dtype="uint64"
         )
         doc.from_array(attrs=[LEMMA], array=lemma_array)
-        doc.is_tagged = bool(any(pos) and any(tags))
-        doc.is_parsed = bool(any(deps))
+        if SPACY_V3:
+            for i, j in enumerate(morphs):
+                if j != "_" and j != "":
+                    doc[i].set_morph(j)
+        else:
+            doc.is_tagged = bool(any(pos) and any(tags))
+            doc.is_parsed = bool(any(deps))
         return doc
 
     def pipe(
@@ -223,9 +234,18 @@ class UDPipeLanguage(Language):
         ignore_tag_map = kwargs.get("ignore_tag_map", False)
         if ignore_tag_map:
             self.Defaults.tag_map = {}  # workaround for ValueError: [E167]
-        self.vocab = self.Defaults.create_vocab()
+        if SPACY_V3:
+            from spacy.vocab import create_vocab
+            from spacy.language import DEFAULT_CONFIG
+            self.vocab = create_vocab(udpipe_model._lang, self.Defaults)
+            self.batch_size = 1000
+            self._components = []
+            self._disabled = set()
+            self._config = DEFAULT_CONFIG.merge(self.default_config)
+        else:
+            self.vocab = self.Defaults.create_vocab()
+            self.pipeline = []
         self.tokenizer = UDPipeTokenizer(model=self.udpipe, vocab=self.vocab)
-        self.pipeline = []
         self.max_length = kwargs.get("max_length", 10 ** 6)
         self._meta = self.udpipe._meta if meta is None else dict(meta)
         self._path = None
