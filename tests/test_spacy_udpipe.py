@@ -3,16 +3,12 @@ import tempfile
 import pytest
 import spacy
 
-from spacy_udpipe import UDPipeModel, download, load
-
-EN = "en"
-RO = "ro"
-SPACY_VERSION = "3.0.0"
+from spacy_udpipe import download, load
 
 
 @pytest.fixture
 def lang() -> str:
-    return EN
+    return "en"
 
 
 @pytest.fixture(autouse=True)
@@ -24,14 +20,12 @@ def test_serialization(lang: str) -> None:
     with tempfile.TemporaryDirectory() as tdir:
         nlp = load(lang=lang)
         nlp.to_disk(tdir)
-
-        udpipe_model = UDPipeModel(lang=lang)
-        nlp = spacy.load(tdir, udpipe_model=udpipe_model)
+        del nlp
+        nlp = spacy.load(tdir)
 
 
 def test_pipe(lang: str) -> None:
     nlp = load(lang=lang)
-    assert nlp._meta["lang"] == f"udpipe_{lang}"
 
     text = "spacy-udpipe still does not support multiprocess execution."
     doc = nlp(text)
@@ -46,21 +40,13 @@ def test_pipe(lang: str) -> None:
     assert docs[-1].to_json() == doc.to_json()
 
 
-def test_morph_exception() -> None:
-    assert spacy.__version__ <= SPACY_VERSION
-
-    lang = RO
+def test_ro_morph() -> None:
+    lang = "ro"
     text = "Ce mai faci?"
 
     download(lang=lang)
-
-    try:
-        nlp = load(lang=lang)
-        assert nlp._meta["lang"] == f"udpipe_{lang}"
-        doc = nlp(text)
-    except ValueError:
-        nlp = load(lang=lang, ignore_tag_map=True)
-        assert nlp._meta["lang"] == f"udpipe_{lang}"
-        doc = nlp(text)
-
-    assert doc
+    
+    nlp = load(lang=lang)
+    doc = nlp(text)
+    
+    assert doc.to_json()

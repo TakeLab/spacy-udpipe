@@ -4,15 +4,13 @@ import pytest
 from spacy.lang.en import EnglishDefaults
 from spacy.language import BaseDefaults
 from spacy_udpipe import download
-from spacy_udpipe.language import load
+from spacy_udpipe import load
 from spacy_udpipe.utils import get_defaults
-
-EN = "en"
 
 
 @pytest.fixture
 def lang() -> str:
-    return EN
+    return "en"
 
 
 @pytest.fixture(autouse=True)
@@ -33,7 +31,6 @@ def test_get_defaults(lang: str) -> None:
 
 def test_spacy_udpipe_default(lang: str) -> None:
     nlp = load(lang=lang)
-    assert nlp._meta["lang"] == f"udpipe_{lang}"
 
     text = "Testing one, two, three. This is a test."
     doc = nlp(text=text)
@@ -61,14 +58,14 @@ def test_spacy_udpipe_default(lang: str) -> None:
                                      "punct",
                                      "nsubj", "cop", "det", "ROOT",
                                      "punct"]
-    assert [t.is_sent_start for t in doc] == [True, None, None, None, None, None, None,  # noqa: E501
-                                              True, None, None, None, None]
+    assert [t.is_sent_start for t in doc] == [True, False, False, False, False, False, False,  # noqa: E501
+                                              True, False, False, False, False]
     assert any([t.is_stop for t in doc])
     # test doc attributes
     assert len(list(doc.sents)) == 2
-    assert doc.is_tagged
-    assert doc.is_parsed
-    assert doc.is_sentenced
+    assert doc.has_annotation("TAG")
+    assert doc.has_annotation("DEP")
+    assert doc.has_annotation("SENT_START")
     # test pipe
     docs = list(nlp.pipe(["Testing one, two, three.", "This is a test."]))
     assert docs[0].text == "Testing one, two, three."
@@ -79,7 +76,6 @@ def test_spacy_udpipe_default(lang: str) -> None:
 
 def test_spacy_udpipe_presegmented(lang: str) -> None:
     nlp = load(lang=lang)
-    assert nlp._meta["lang"] == f"udpipe_{lang}"
 
     text = "Testing one, two, three. This is a test."
     doc = nlp(text=text)
@@ -96,7 +92,6 @@ def test_spacy_udpipe_presegmented(lang: str) -> None:
 
 def test_spacy_udpipe_pretokenized(lang: str) -> None:
     nlp = load(lang=lang)
-    assert nlp._meta["lang"] == f"udpipe_{lang}"
 
     text = "Testing one, two, three. This is a test."
     doc = nlp(text=text)
