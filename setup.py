@@ -1,4 +1,3 @@
-import json
 import os
 
 import setuptools
@@ -26,22 +25,6 @@ URL = "https://github.com/TakeLab/spacy-udpipe"
 with open("README.md", "r") as f:
     readme = f.read()
 
-# Get available languages and models from spacy_udpipe/languages.json
-languages_path = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    "spacy_udpipe",
-    "languages.json"
-)
-with open(languages_path, "r") as f:
-    languages = json.load(f)
-
-ENTRY_POINTS = {"spacy_languages":
-                set(f"udpipe_{s.split('-')[0]} = "
-                    "spacy_udpipe:UDPipeLanguage"
-                    for s in languages.keys()
-                    )
-                }
-
 setuptools.setup(
     name="spacy_udpipe",
     version=get_version("__init__.py"),
@@ -54,9 +37,13 @@ setuptools.setup(
     license="MIT",
     keywords="nlp udpipe spacy python",
     packages=setuptools.find_packages(),
-    install_requires=["spacy>=2.1.0,<3.0.0", "ufal.udpipe>=1.2.0"],
+    install_requires=["spacy>=3.0.0,<4.0.0", "ufal.udpipe>=1.2.0"],
     python_requires=">=3.6",
-    entry_points=ENTRY_POINTS,
+    entry_points={
+        "spacy_tokenizers": [
+            "spacy_udpipe.PipelineAsTokenizer.v1 = spacy_udpipe:tokenizer.create_tokenizer",
+        ]
+    },
     tests_require=["pytest>=5.0.0"],
     package_data={"spacy_udpipe": ["./languages.json"], },
     classifiers=[
