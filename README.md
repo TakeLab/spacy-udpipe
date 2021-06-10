@@ -72,8 +72,6 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 
 ## Notes
 
-* Full suport for serialization is enabled from `v1.0.0` onwards.
-* Proper  morphology support is also enabled from `v1.0.0` onwards.
 * Known possible issues:
     * Tag map
 
