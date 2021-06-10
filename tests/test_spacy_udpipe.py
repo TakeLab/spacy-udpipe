@@ -19,9 +19,14 @@ def download_lang(lang: str) -> None:
 def test_serialization(lang: str) -> None:
     with tempfile.TemporaryDirectory() as tdir:
         nlp = load(lang=lang)
+        doc = nlp("A simple sentence.")
         nlp.to_disk(tdir)
         del nlp
+
         nlp = spacy.load(tdir)
+        same_doc = nlp("A simple sentence.")
+
+        assert doc.to_json() == same_doc.to_json()
 
 
 def test_pipe(lang: str) -> None:
