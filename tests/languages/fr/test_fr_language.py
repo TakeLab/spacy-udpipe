@@ -3,16 +3,13 @@ from typing import List
 import pytest
 from spacy.lang.fr import FrenchDefaults
 from spacy.language import BaseDefaults
-from spacy_udpipe import download
-from spacy_udpipe.language import load
+from spacy_udpipe import download, load
 from spacy_udpipe.utils import get_defaults
-
-FR = "fr"
 
 
 @pytest.fixture
 def lang() -> str:
-    return FR
+    return "fr"
 
 
 @pytest.fixture(autouse=True)
@@ -27,7 +24,6 @@ def test_get_defaults(lang: str) -> None:
 
 def test_spacy_udpipe(lang: str) -> None:
     nlp = load(lang=lang)
-    assert nlp._meta["lang"] == f"udpipe_{lang}"
     
     text = "Attention aux articles contractés!"
     doc = nlp (text=text)
