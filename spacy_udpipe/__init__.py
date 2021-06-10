@@ -1,6 +1,10 @@
-__version__ = "0.3.2"
-__all__ = ["UDPipeLanguage", "UDPipeModel",
-           "load", "load_from_path", "download"]
+__version__ = "1.0.0"
+__all__ = [
+    "download", "load", "load_from_path",
+    "UDPipeTokenizer", "UDPipeModel"
+]
 
-from .language import UDPipeLanguage, UDPipeModel, load, load_from_path
-from .utils import download
+from .utils import download, load, load_from_path
+from .tokenizer import UDPipeTokenizer
+from .udpipe import UDPipeModel
+
