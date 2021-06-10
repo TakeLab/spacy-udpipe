@@ -34,9 +34,11 @@ def create_tokenizer(
 
     return tokenizer_factory
 
+
 def _spacy_dep(d: str) -> str:
     # Ensure labels match with SpaCy
     return d.upper() if d == "root" else d
+
 
 class UDPipeTokenizer(object):
     """Custom Tokenizer which sets all the attributes because

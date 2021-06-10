@@ -88,12 +88,13 @@ def load(
     """
     config = {"nlp": {"tokenizer": {}}}
     name = lang.split("-")[0]
-    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"
+    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"  # noqa: E501
     # Set UDPipe options
     config["nlp"]["tokenizer"]["lang"] = lang
     config["nlp"]["tokenizer"]["path"] = get_path(lang)
     config["nlp"]["tokenizer"]["meta"] = None
     return blank(name, config=config)
+
 
 def load_from_path(
     lang: str,
@@ -110,7 +111,7 @@ def load_from_path(
     """
     config = {"nlp": {"tokenizer": {}}}
     name = lang.split("-")[0]
-    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"
+    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"  # noqa: E501
     # Set UDPipe options
     config["nlp"]["tokenizer"]["lang"] = lang
     config["nlp"]["tokenizer"]["path"] = path
