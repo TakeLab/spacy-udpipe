@@ -7,4 +7,3 @@ __all__ = [
 from .utils import download, load, load_from_path
 from .tokenizer import UDPipeTokenizer
 from .udpipe import UDPipeModel
-

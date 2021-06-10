@@ -50,8 +50,8 @@ def test_ro_morph() -> None:
     text = "Ce mai faci?"
 
     download(lang=lang)
-    
+
     nlp = load(lang=lang)
     doc = nlp(text)
-    
+
     assert doc.to_json()
