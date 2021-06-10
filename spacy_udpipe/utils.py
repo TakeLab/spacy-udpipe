@@ -1,25 +1,29 @@
 import json
 import os
 import urllib.request
+from typing import Optional, Dict
 
-from spacy.language import Language
+from spacy import blank, Language
 from spacy.util import get_lang_class
+
 
 BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3131"  # noqa: E501
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
-languages_path = os.path.join(os.path.dirname(__file__), "languages.json")
-with open(languages_path, "r") as f:
+with open(
+    os.path.join(
+        os.path.dirname(__file__),
+        "languages.json"
+    ),
+) as f:
     LANGUAGES = json.load(f)
 
 
 def _check_language(lang: str) -> None:
-    if lang not in LANGUAGES:
-        raise Exception(f"'{lang}' language not available")
+    assert lang in LANGUAGES, f"'{lang}' language not available"
 
 
 def _check_models_dir(lang: str) -> None:
-    if not os.path.exists(MODELS_DIR):
-        raise Exception("Download the pretrained model(s) first")
+    assert os.path.exists(MODELS_DIR), "Download the pretrained model(s) first"
 
 
 def download(lang: str) -> None:
@@ -30,7 +34,7 @@ def download(lang: str) -> None:
     _check_language(lang)
     try:
         _check_models_dir(lang)
-    except Exception:
+    except AssertionError:
         os.makedirs(MODELS_DIR)
     if LANGUAGES[lang] in os.listdir(MODELS_DIR):
         print(f"Already downloaded a model for the '{lang}' language")
@@ -71,3 +75,44 @@ def get_defaults(lang: str) -> Language.Defaults:
         return lang_cls.Defaults
     except ImportError:
         return Language.Defaults
+
+
+def load(
+    lang: str = ""
+) -> Language:
+    """Convenience function for initializing the Language class that
+    mimicks spacy.load.
+
+    lang: ISO 639-1 language code or shorthand UDPipe model name.
+    RETURNS: SpaCy Language object with UDPipeTokenizer.
+    """
+    config = {"nlp": {"tokenizer": {}}}
+    name = lang.split("-")[0]
+    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"
+    # Set UDPipe options
+    config["nlp"]["tokenizer"]["lang"] = lang
+    config["nlp"]["tokenizer"]["path"] = get_path(lang)
+    config["nlp"]["tokenizer"]["meta"] = None
+    return blank(name, config=config)
+
+def load_from_path(
+    lang: str,
+    path: str,
+    meta: Optional[Dict] = {"description": "custom model"},
+) -> Language:
+    """Convenience function for initializing the Language class
+    and loading a custom UDPipe model via the path argument.
+
+    lang: ISO 639-1 language code or shorthand UDPipe model name.
+    path: Path to the UDPipe model.
+    meta: Optional meta-information about the UDPipe model.
+    RETURNS: SpaCy Language object with UDPipeTokenizer.
+    """
+    config = {"nlp": {"tokenizer": {}}}
+    name = lang.split("-")[0]
+    config["nlp"]["tokenizer"]["@tokenizers"] = "spacy_udpipe.PipelineAsTokenizer.v1"
+    # Set UDPipe options
+    config["nlp"]["tokenizer"]["lang"] = lang
+    config["nlp"]["tokenizer"]["path"] = path
+    config["nlp"]["tokenizer"]["meta"] = meta
+    return blank(name, config=config)
