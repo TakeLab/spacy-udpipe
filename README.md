@@ -72,18 +72,8 @@ Maintained by [Text Analysis and Knowledge Engineering Lab (TakeLab)](http://tak
 
 ## Notes
 
-* This package exposes a `spacy_languages` entry point in its [`setup.py`](https://github.com/TakeLab/spacy-udpipe/blob/master/setup.py) so full suport for serialization is enabled:
-    ```python
-    nlp = spacy_udpipe.load("en")
-    nlp.to_disk("./udpipe-spacy-model")
-
-    ```
-    To properly load a saved model, you must pass the `udpipe_model` argument when loading it:
-    ```python
-    udpipe_model = spacy_udpipe.UDPipeModel("en")
-    nlp = spacy.load("./udpipe-spacy-model", udpipe_model=udpipe_model)
-
-    ```
+* Full suport for serialization is enabled from `v1.0.0` onwards.
+* Proper  morphology support is also enabled from `v1.0.0` onwards.
 * Known possible issues:
     * Tag map
 
