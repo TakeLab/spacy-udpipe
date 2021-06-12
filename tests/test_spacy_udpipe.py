@@ -43,15 +43,3 @@ def test_pipe(lang: str) -> None:
     assert len(docs) == len(texts)
     assert docs[0].to_json() == doc.to_json()
     assert docs[-1].to_json() == doc.to_json()
-
-
-def test_ro_morph() -> None:
-    lang = "ro"
-    text = "Ce mai faci?"
-
-    download(lang=lang)
-
-    nlp = load(lang=lang)
-    doc = nlp(text)
-
-    assert doc.to_json()

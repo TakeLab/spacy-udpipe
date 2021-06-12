@@ -61,11 +61,26 @@ def test_spacy_udpipe_default(lang: str) -> None:
     assert [t.is_sent_start for t in doc] == [True, False, False, False, False, False, False,  # noqa: E501
                                               True, False, False, False, False]
     assert any([t.is_stop for t in doc])
+    assert [str(t.morph) for t in doc] == [
+        'Number=Sing',
+        'NumType=Card',
+        '',
+        'NumType=Card',
+        '',
+        'NumType=Card',
+        '',
+        'Number=Sing|PronType=Dem',
+        'Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin',
+        'Definite=Ind|PronType=Art',
+        'Number=Sing',
+        ''
+    ]
     # test doc attributes
     assert len(list(doc.sents)) == 2
     assert doc.has_annotation("TAG")
     assert doc.has_annotation("DEP")
     assert doc.has_annotation("SENT_START")
+    assert doc.has_annotation("MORPH")
     # test pipe
     docs = list(nlp.pipe(["Testing one, two, three.", "This is a test."]))
     assert docs[0].text == "Testing one, two, three."
