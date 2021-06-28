@@ -43,7 +43,6 @@ def download(lang: str, verbose: bool = False) -> None:
     url = f"{BASE_URL}/{LANGUAGES[lang]}"
     filename = os.path.join(MODELS_DIR, LANGUAGES[lang])
     urllib.request.urlretrieve(url=url, filename=filename)
-    
     if verbose:
         print(f"Downloaded pre-trained UDPipe model for '{lang}' language")
 
