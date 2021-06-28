@@ -26,7 +26,7 @@ def _check_models_dir(lang: str) -> None:
     assert os.path.exists(MODELS_DIR), "Download the pretrained model(s) first"
 
 
-def download(lang: str) -> None:
+def download(lang: str, verbose: bool = False) -> None:
     """Download the UDPipe pretrained model.
 
     lang: ISO 639-1 language code or shorthand UDPipe model name.
@@ -37,12 +37,14 @@ def download(lang: str) -> None:
     except AssertionError:
         os.makedirs(MODELS_DIR)
     if LANGUAGES[lang] in os.listdir(MODELS_DIR):
-        print(f"Already downloaded a model for the '{lang}' language")
+        if verbose:
+            print(f"Already downloaded a model for the '{lang}' language")
         return
     url = f"{BASE_URL}/{LANGUAGES[lang]}"
     filename = os.path.join(MODELS_DIR, LANGUAGES[lang])
     urllib.request.urlretrieve(url=url, filename=filename)
-    print(f"Downloaded pre-trained UDPipe model for '{lang}' language")
+    if verbose:
+        print(f"Downloaded pre-trained UDPipe model for '{lang}' language")
 
 
 def get_path(lang: str) -> str:
