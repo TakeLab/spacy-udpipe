@@ -1,3 +1,6 @@
+# Ignore models dir
+spacy_udpipe/models
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

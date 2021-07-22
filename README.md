@@ -61,7 +61,8 @@ This can be done for any of the languages supported by spaCy. For an exhaustive 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update the tests as appropriate. Tests are run automatically for each pull request on the master branch.
-To start the tests locally, first, install the package with `pip install -e .`, then run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
+To start the tests locally, first, install the package with `pip install -e .[dev]`, then run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory.
+Additionally, run [`flake8`](https://flake8.pycqa.org/en/latest) to check for coding mistakes.
 
 ## License
 * Source code: [MIT](https://choosealicense.com/licenses/mit/) © Text Analysis and Knowledge Engineering Lab (TakeLab)

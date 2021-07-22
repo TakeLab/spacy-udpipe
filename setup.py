@@ -1,6 +1,6 @@
 import os
 
-import setuptools
+from setuptools import find_packages, setup
 
 
 def get_version(fname: str) -> str:
@@ -9,7 +9,7 @@ def get_version(fname: str) -> str:
         "spacy_udpipe",
         fname
     )
-    with open(full_path, "r") as fp:
+    with open(full_path, "r", encoding="utf-8") as fp:
         for l in fp:
             if l.startswith("__version__"):
                 delim = '"' if '"' in l else "'"
@@ -22,10 +22,10 @@ def get_version(fname: str) -> str:
 
 URL = "https://github.com/TakeLab/spacy-udpipe"
 
-with open("README.md", "r") as f:
+with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()
 
-setuptools.setup(
+setup(
     name="spacy_udpipe",
     version=get_version("__init__.py"),
     description="Use fast UDPipe models directly in spaCy",
@@ -36,8 +36,11 @@ setuptools.setup(
     author_email="takelab@fer.hr",
     license="MIT",
     keywords="nlp udpipe spacy python",
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     install_requires=["spacy>=3.0.0,<4.0.0", "ufal.udpipe>=1.2.0"],
+    extras_require={
+        "dev": ["flake8", "pytest"],
+    },
     python_requires=">=3.6",
     entry_points={
         "spacy_tokenizers": [
@@ -49,9 +52,15 @@ setuptools.setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research"
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Text Processing",
     ],
     project_urls={
         "SpaCy": "https://spacy.io/",

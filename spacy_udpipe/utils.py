@@ -10,10 +10,7 @@ from spacy.util import get_lang_class
 BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3131"  # noqa: E501
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
 with open(
-    os.path.join(
-        os.path.dirname(__file__),
-        "languages.json"
-    ),
+    os.path.join(os.path.dirname(__file__), "languages.json"), encoding="utf-8"
 ) as f:
     LANGUAGES = json.load(f)
 
