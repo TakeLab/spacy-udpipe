@@ -6,7 +6,7 @@ from spacy.vocab import Vocab
 from spacy.util import registry
 from ufal.udpipe import Sentence, Word
 
-from .udpipe import NO_SPACE, UDPipeModel
+from .udpipe import UDPipeModel
 from .utils import get_path
 
 
@@ -40,7 +40,7 @@ def _spacy_dep(d: str) -> str:
     return d.upper() if d == "root" else d
 
 
-class UDPipeTokenizer(object):
+class UDPipeTokenizer:
     """Custom Tokenizer which sets all the attributes because
     the UDPipe pipeline runs only once and does not
     contain separate spaCy pipeline components.
@@ -97,7 +97,7 @@ class UDPipeTokenizer(object):
             text = ""
             for token in tokens:
                 text += token.form
-                if NO_SPACE not in token.misc:
+                if token.getSpaceAfter():
                     text += " "
         for i, token in enumerate(tokens):
             span = text[offset:]
@@ -117,7 +117,7 @@ class UDPipeTokenizer(object):
             lemmas.append(token.lemma or "")
             offset += len(token.form)
             span = text[offset:]
-            if i == len(tokens) - 1 or NO_SPACE in token.misc:
+            if i == len(tokens) - 1 or not token.getSpaceAfter():
                 spaces.append(False)
             elif not is_aligned:
                 spaces.append(True)
