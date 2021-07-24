@@ -81,7 +81,9 @@ class UDPipeModel:
         self.model = Model.load(path)
         self._lang = lang.split("-")[0]
         self._path = path
-        self._meta = meta or _default_model_meta(self._lang, self._path.split("/")[-1])
+        self._meta = meta or _default_model_meta(
+            self._lang, self._path.split("/")[-1]
+        )
 
     def __reduce__(self):
         # required for multiprocessing on Windows
