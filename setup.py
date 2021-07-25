@@ -10,10 +10,10 @@ def get_version(fname: str) -> str:
         fname
     )
     with open(full_path, "r", encoding="utf-8") as fp:
-        for l in fp:
-            if l.startswith("__version__"):
-                delim = '"' if '"' in l else "'"
-                return l.split(delim)[1]
+        for line in fp:
+            if line.startswith("__version__"):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
             else:
                 raise RuntimeError(
                     "Unable to find version string."

@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 from spacy.lang.fr import FrenchDefaults
 from spacy.language import BaseDefaults
@@ -24,12 +22,12 @@ def test_get_defaults(lang: str) -> None:
 
 def test_spacy_udpipe(lang: str) -> None:
     nlp = load(lang=lang)
-    
+
     text = "Attention aux articles contractés!"
-    doc = nlp (text=text)
-    
+    doc = nlp(text=text)
+
     assert [t.orth_ for t in doc] == ["Attention", "à", "les", "articles", "contractés", "!"]
-    
+
     pos = [{"INTJ", "NOUN"}, {"ADP"}, {"DET"}, {"NOUN"}, {"VERB", "ADJ"}, {"PUNCT"}]
     for i, t in enumerate(doc):
         assert t.pos_ in pos[i]
