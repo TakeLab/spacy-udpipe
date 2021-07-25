@@ -63,11 +63,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update the tests as appropriate. Tests are run automatically for each pull request on the master branch.
 To start the tests locally, first, install the package with `pip install -e .[dev]`, then run [`pytest`](https://docs.pytest.org/en/latest/contents.html) in the root source directory as follows:
 ```bash
-python -m pytest -vvv tests
+make test
 ```
 Additionally, run [`flake8`](https://flake8.pycqa.org/en/latest) with the following command to check for coding mistakes:
 ```bash
-flake8 **/*.py --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+make lint
 ```
 
 ## License
