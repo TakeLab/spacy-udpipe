@@ -3,14 +3,30 @@ from typing import Dict, List, Optional, Union
 
 from ufal.udpipe import InputFormat
 from ufal.udpipe import Model
-from ufal.udpipe import OutputFormat, ProcessingError, Sentence, Word
+from ufal.udpipe import OutputFormat, ProcessingError, Sentence
 
 from .utils import get_path
 
-NO_SPACE = "SpaceAfter=No"
+
+def _default_model_meta(lang: str, name: str) -> Dict:
+    return {
+        "author": "Milan Straka & Jana Straková",
+        "description": "UDPipe pretrained model.",
+        "email": "straka@ufal.mff.cuni.cz",
+        "lang": f"udpipe_{lang}",
+        "license": "CC BY-NC-SA 4.0",
+        "name": name,
+        "parent_package": "spacy_udpipe",
+        "pipeline": [
+            "Tokenizer", "Tagger", "Lemmatizer", "Parser"
+        ],
+        "source": "Universal Dependencies 2.5",
+        "url": "http://ufal.mff.cuni.cz/udpipe",
+        "version": "1.2.0"
+    }
 
 
-class PretokenizedInputFormat(object):
+class PretokenizedInputFormat:
     """Dummy tokenizer for pretokenized input.
 
     Execution speed might be slow compared to other UDPipe tokenizers
@@ -35,19 +51,19 @@ class PretokenizedInputFormat(object):
             line = next(self.lines)
         except StopIteration:
             return False
+
         tokens = line.split("\t")
-        prev_word = Word()
-        for token in tokens:
+        num_tokens = len(tokens)
+        for i, token in enumerate(tokens):
             word = sentence.addWord(token)
-            if re.match(r"\W", token):
-                # leave no space after previous token iff current token
+            if i < num_tokens - 1 and re.match(r"\W", tokens[i + 1]):
+                # leave no space after current token iff next token
                 # is non-alphanumeric (i.e. punctuation)
-                prev_word.misc = NO_SPACE
-            prev_word = word
+                word.setSpaceAfter(False)
         return True
 
 
-class UDPipeModel(object):
+class UDPipeModel:
 
     def __init__(
         self,
@@ -64,20 +80,14 @@ class UDPipeModel(object):
         path = path or get_path(lang=lang)
         self.model = Model.load(path)
         self._lang = lang.split("-")[0]
-        self._meta = meta or {"author": "Milan Straka & Jana Straková",
-                              "description": "UDPipe pretrained model.",
-                              "email": "straka@ufal.mff.cuni.cz",
-                              "lang": f"udpipe_{self._lang}",
-                              "license": "CC BY-NC-SA 4.0",
-                              "name": path.split("/")[-1],
-                              "parent_package": "spacy_udpipe",
-                              "pipeline": [
-                                  "Tokenizer", "Tagger", "Lemmatizer", "Parser"
-                              ],
-                              "source": "Universal Dependencies 2.5",
-                              "url": "http://ufal.mff.cuni.cz/udpipe",
-                              "version": "1.2.0"
-                              }
+        self._path = path
+        self._meta = meta or _default_model_meta(
+            self._lang, self._path.split("/")[-1]
+        )
+
+    def __reduce__(self):
+        # required for multiprocessing on Windows
+        return self.__class__, (self._lang, self._path, self._meta)
 
     def __call__(
         self,
