@@ -1,4 +1,0 @@
-spacy>=3.0.0,<4.0.0
-ufal.udpipe~=1.2.0
-# Development dependencies
-pytest>=5.0.0
