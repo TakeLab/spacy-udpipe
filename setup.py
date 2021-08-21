@@ -37,7 +37,11 @@ setup(
     license="MIT",
     keywords="nlp udpipe spacy python",
     packages=find_packages(),
-    install_requires=["spacy>=3.0.0,<4.0.0", "ufal.udpipe>=1.2.0"],
+    install_requires=[
+        "spacy>=3.0.0,<4.0.0",
+        "ufal.udpipe>=1.2.0",
+        "importlib_resources;python_version<'3.7'",
+    ],
     extras_require={
         "dev": ["flake8", "pytest"],
     },
@@ -69,5 +73,5 @@ setup(
         "Source": URL,
         "Tracker": URL + "/issues",
     },
-    zip_safe=False
+    zip_safe=True
 )
