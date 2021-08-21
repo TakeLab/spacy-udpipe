@@ -6,14 +6,16 @@ import spacy
 from spacy_udpipe import download, load
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def lang() -> str:
     return "en"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def download_lang(lang: str) -> None:
-    download(lang=lang)
+    with tempfile.TemporaryDirectory() as tdir:
+        download(lang=lang, models_dir=tdir)
+        yield
 
 
 def test_serialization(lang: str) -> None:
