@@ -1,4 +1,3 @@
-import tempfile
 from typing import List
 
 import pytest
@@ -9,16 +8,14 @@ from spacy_udpipe import load
 from spacy_udpipe.utils import get_defaults
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def lang() -> str:
     return "en"
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(autouse=True)
 def download_lang(lang: str) -> None:
-    with tempfile.TemporaryDirectory() as tdir:
-        download(lang, models_dir=tdir)
-        yield
+    download(lang=lang)
 
 
 def tags_equal(act: List[str], exp: List[str]) -> bool:

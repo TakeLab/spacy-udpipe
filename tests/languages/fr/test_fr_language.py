@@ -1,5 +1,3 @@
-import tempfile
-
 import pytest
 from spacy.lang.fr import FrenchDefaults
 from spacy.language import BaseDefaults
@@ -7,16 +5,14 @@ from spacy_udpipe import download, load
 from spacy_udpipe.utils import get_defaults
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def lang() -> str:
     return "fr"
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(autouse=True)
 def download_lang(lang: str) -> None:
-    with tempfile.TemporaryDirectory() as tdir:
-        download(lang, models_dir=tdir)
-        yield
+    download(lang)
 
 
 def test_get_defaults(lang: str) -> None:
