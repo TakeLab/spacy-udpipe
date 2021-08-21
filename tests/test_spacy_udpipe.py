@@ -11,7 +11,7 @@ def lang() -> str:
     return "en"
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def download_lang(lang: str) -> None:
     download(lang=lang)
 

@@ -43,7 +43,7 @@ setup(
         "importlib_resources;python_version<'3.7'",
     ],
     extras_require={
-        "dev": ["flake8", "pytest"],
+        "dev": ["flake8", "pytest", "pytest-mock"],
     },
     python_requires=">=3.6",
     entry_points={

@@ -12,7 +12,7 @@ def lang() -> str:
 
 @pytest.fixture(autouse=True)
 def download_lang(lang: str) -> None:
-    download(lang)
+    download(lang=lang)
 
 
 def test_get_defaults(lang: str) -> None:

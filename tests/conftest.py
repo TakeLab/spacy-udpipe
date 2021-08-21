@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def set_test_models_dir(tmp_path_factory, monkeypatch):
+@pytest.fixture(scope="session", autouse=True)
+def set_test_models_dir(tmp_path_factory, session_mocker):
     test_models_dir = tmp_path_factory.mktemp("models")
-    monkeypatch.setattr("spacy_udpipe.utils.MODELS_DIR", str(test_models_dir))
+    session_mocker.patch("spacy_udpipe.utils.MODELS_DIR", str(test_models_dir))

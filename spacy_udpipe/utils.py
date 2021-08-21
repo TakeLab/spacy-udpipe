@@ -1,7 +1,7 @@
 import json
 import os
 import urllib.request
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from spacy import blank, Language
 from spacy.util import get_lang_class
@@ -35,12 +35,13 @@ def _check_models_dir(models_dir) -> None:
     assert os.path.exists(models_dir), "Download the pretrained model(s) first"
 
 
-def download(lang: str, models_dir: str = MODELS_DIR, verbose: bool = False) -> None:
+def download(lang: str, models_dir: Optional[str] = None, verbose: bool = False) -> None:
     """Download the UDPipe pretrained model.
 
     lang: ISO 639-1 language code or shorthand UDPipe model name.
     models_dir: Directory to store a downloaded model.
     """
+    models_dir = models_dir or MODELS_DIR
     _check_language(lang)
     try:
         _check_models_dir(models_dir)
@@ -57,13 +58,14 @@ def download(lang: str, models_dir: str = MODELS_DIR, verbose: bool = False) -> 
         print(f"Downloaded pre-trained UDPipe model for '{lang}' language")
 
 
-def get_path(lang: str, models_dir: str = MODELS_DIR) -> str:
+def get_path(lang: str, models_dir: Optional[str] = None) -> str:
     """Get the path to the UDPipe pretrained model if it was downloaded.
 
     lang: ISO 639-1 language code or shorthand UDPipe model name.
     models_dir: Directory with the pretrained models.
     RETURNS: The path to the UDPipe pretrained model.
     """
+    models_dir = models_dir or MODELS_DIR
     _check_language(lang)
     _check_models_dir(models_dir)
     if not LANGUAGES[lang] in os.listdir(models_dir):
