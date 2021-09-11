@@ -15,7 +15,7 @@ def lang() -> str:
 
 @pytest.fixture(autouse=True)
 def download_lang(lang: str) -> None:
-    download(lang)
+    download(lang=lang)
 
 
 def tags_equal(act: List[str], exp: List[str]) -> bool:
