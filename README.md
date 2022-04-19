@@ -16,7 +16,7 @@ pip install spacy-udpipe
 
 After installation, use `spacy_udpipe.download()` to download the pre-trained model for the desired language.
 
-A full list of pre-trained UDPipe models for supported languages can be found in [`languages.json`](https://github.com/TakeLab/spacy-udpipe/blob/master/spacy_udpipe/languages.json).
+A full list of pre-trained UDPipe models for supported languages can be found in [`languages.json`](https://github.com/TakeLab/spacy-udpipe/blob/master/spacy_udpipe/resources/languages.json).
 
 ## Usage
 The loaded UDPipeLanguage class returns a spaCy [`Language` object](https://spacy.io/api/language), i.e., the object you can use to process text and create a [`Doc` object](https://spacy.io/api/doc).
