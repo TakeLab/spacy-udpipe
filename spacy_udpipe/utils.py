@@ -161,11 +161,15 @@ def _create_udpipe_lang_cls(base_cls: type) -> type:
                     for future in futures:
                         yield from future.result()
             else:
+                # Multiprocessing is not supported: UDPipeLanguage is
+                # dynamically created and cannot be pickled for subprocess
+                # workers.  Force single-process execution regardless of
+                # what the caller requested.
                 yield from super().pipe(
                     texts,
                     as_tuples=as_tuples,
                     batch_size=batch_size,
-                    n_process=n_process,
+                    n_process=1,
                     **kwargs,
                 )
 
