@@ -20,7 +20,7 @@ except ImportError:
     import importlib_resources as pkg_resources
 
 
-BASE_URL = "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3131"  # noqa: E501
+BASE_URL = "https://raw.githubusercontent.com/jwijffels/udpipe.models.ud.2.5/master/inst/udpipe-ud-2.5-191206"
 MODELS_DIR = os.getenv(
     "SPACY_UDPIPE_MODELS_DIR",
     os.path.join(os.path.expanduser("~/.cache"), "spacy_udpipe_models"),

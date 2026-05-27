@@ -45,7 +45,7 @@ setup(
     extras_require={
         "dev": ["flake8", "pytest", "pytest-mock"],
     },
-    python_requires=">=3.6",
+    python_requires=">=3.9",
     entry_points={
         "spacy_tokenizers": [
             "spacy_udpipe.PipelineAsTokenizer.v1 = spacy_udpipe:tokenizer.create_tokenizer",

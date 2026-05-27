@@ -97,7 +97,7 @@ def test_spacy_udpipe_presegmented(lang: str) -> None:
     doc_json = doc.to_json()
 
     text_pre = ["Testing one, two, three.", "This is a test."]
-    doc_pre = nlp(text=text_pre)
+    doc_pre = nlp.tokenizer(text_pre)
     doc_pre_json = doc_pre.to_json()
 
     assert doc_json["text"] == doc_pre_json["text"]
@@ -116,7 +116,7 @@ def test_spacy_udpipe_pretokenized(lang: str) -> None:
         ["Testing", "one", ",", "two", ",", "three", "."],
         ["This", "is", "a", "test", "."]
     ]
-    doc_pre = nlp(text=text_pre)
+    doc_pre = nlp.tokenizer(text_pre)
     doc_pre_json = doc_pre.to_json()
 
     assert doc_json["text"] == doc_pre_json["text"]
