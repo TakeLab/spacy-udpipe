@@ -41,6 +41,7 @@ setup(
         "spacy>=3.0.0,<4.0.0",
         "ufal.udpipe>=1.2.0",
         "importlib_resources;python_version<'3.7'",
+        "click>=8.0.0",
     ],
     extras_require={
         "dev": ["flake8", "pytest", "pytest-mock"],
