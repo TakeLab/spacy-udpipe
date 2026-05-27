@@ -3,8 +3,9 @@ import json
 import os
 import sys
 import urllib.request
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Any, Deque, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from spacy import Language
 from spacy.util import get_lang_class
@@ -104,6 +105,7 @@ def _process_batch(
     nlp: Language,
     batch: List,
     as_tuples: bool,
+    **kwargs: Any,
 ) -> List:
     """Worker executed inside a ``ThreadPoolExecutor`` thread.
 
@@ -115,8 +117,8 @@ def _process_batch(
     be shared safely across threads.
     """
     if as_tuples:
-        return [(nlp(text), ctx) for text, ctx in batch]
-    return [nlp(text) for text in batch]
+        return [(nlp(text, **kwargs), ctx) for text, ctx in batch]
+    return [nlp(text, **kwargs) for text in batch]
 
 
 # Cache so we never construct more than one subclass per base language class.
@@ -151,15 +153,30 @@ def _create_udpipe_lang_cls(base_cls: type) -> type:
             forwarded unchanged to ``super().pipe()`` so behaviour is identical
             to the baseline spaCy implementation.
             """
+            if n_process == -1:
+                n_process = os.cpu_count() or 1
             if is_free_threaded() and n_process > 1:
+                pending: Deque = deque()
                 chunks = _chunked(texts, batch_size)
                 with ThreadPoolExecutor(max_workers=n_process) as executor:
-                    futures = [
-                        executor.submit(_process_batch, self, chunk, as_tuples)
-                        for chunk in chunks
-                    ]
-                    for future in futures:
-                        yield from future.result()
+                    # Pre-fill the executor pipeline (up to n_process tasks)
+                    for chunk in itertools.islice(chunks, n_process):
+                        pending.append(
+                            executor.submit(
+                                _process_batch, self, chunk, as_tuples, **kwargs
+                            )
+                        )
+                    # Stream results while submitting new tasks incrementally
+                    for chunk in chunks:
+                        yield from pending.popleft().result()
+                        pending.append(
+                            executor.submit(
+                                _process_batch, self, chunk, as_tuples, **kwargs
+                            )
+                        )
+                    # Drain remaining futures
+                    while pending:
+                        yield from pending.popleft().result()
             else:
                 # Multiprocessing is not supported: UDPipeLanguage is
                 # dynamically created and cannot be pickled for subprocess
