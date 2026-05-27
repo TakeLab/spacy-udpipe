@@ -1,7 +1,10 @@
+import itertools
 import json
 import os
+import sys
 import urllib.request
-from typing import Dict, Optional
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from spacy import blank, Language
 from spacy.util import get_lang_class
@@ -77,6 +80,101 @@ def get_path(lang: str, models_dir: Optional[str] = None) -> str:
     return path
 
 
+def is_free_threaded() -> bool:
+    """Return True when running on a free-threaded (GIL-disabled) Python build.
+
+    On Python < 3.13 the ``sys._is_gil_enabled`` attribute does not exist, so
+    the function defaults to returning ``False`` (GIL active), which causes all
+    concurrency paths to fall back to the standard single-threaded spaCy loop.
+    """
+    return not getattr(sys, "_is_gil_enabled", lambda: True)()
+
+
+def _chunked(iterable: Iterable, size: int) -> Iterator[List]:
+    """Yield successive chunks of *size* items from *iterable*."""
+    it = iter(iterable)
+    while True:
+        chunk = list(itertools.islice(it, size))
+        if not chunk:
+            return
+        yield chunk
+
+
+def _process_batch(
+    nlp: Language,
+    batch: List,
+    as_tuples: bool,
+) -> List:
+    """Worker executed inside a ``ThreadPoolExecutor`` thread.
+
+    Each call creates its own isolated UDPipe ``InputFormat`` / ``OutputFormat``
+    objects because ``Language.__call__`` ultimately delegates to
+    ``UDPipeTokenizer.__call__`` → ``UDPipeModel.__call__`` → ``tokenize()``,
+    which constructs a fresh ``InputFormat`` per invocation.  The underlying
+    ``ufal.udpipe.Model`` object is read-only during inference and may therefore
+    be shared safely across threads.
+    """
+    if as_tuples:
+        return [(nlp(text), ctx) for text, ctx in batch]
+    return [nlp(text) for text in batch]
+
+
+# Cache so we never construct more than one subclass per base language class.
+_udpipe_lang_cls_cache: Dict[type, type] = {}
+
+
+def _create_udpipe_lang_cls(base_cls: type) -> type:
+    """Return a subclass of *base_cls* whose ``pipe()`` method transparently
+    routes batches through ``ThreadPoolExecutor`` on free-threaded Python builds
+    and falls back to ``super().pipe()`` everywhere else.
+    """
+    if base_cls in _udpipe_lang_cls_cache:
+        return _udpipe_lang_cls_cache[base_cls]
+
+    class UDPipeLanguage(base_cls):  # type: ignore[valid-type]
+        def pipe(
+            self,
+            texts: Union[
+                Iterable[str],
+                Iterable[Tuple[str, Any]],
+            ],
+            *,
+            as_tuples: bool = False,
+            batch_size: int = 1000,
+            n_process: int = 1,
+            **kwargs: Any,
+        ) -> Iterator:
+            """Process an iterable of texts, leveraging threads on free-threaded
+            Python builds when *n_process* > 1.
+
+            On GIL-active runtimes (or when n_process == 1) the call is
+            forwarded unchanged to ``super().pipe()`` so behaviour is identical
+            to the baseline spaCy implementation.
+            """
+            if is_free_threaded() and n_process > 1:
+                chunks = _chunked(texts, batch_size)
+                with ThreadPoolExecutor(max_workers=n_process) as executor:
+                    futures = [
+                        executor.submit(_process_batch, self, chunk, as_tuples)
+                        for chunk in chunks
+                    ]
+                    for future in futures:
+                        yield from future.result()
+            else:
+                yield from super().pipe(
+                    texts,
+                    as_tuples=as_tuples,
+                    batch_size=batch_size,
+                    n_process=n_process,
+                    **kwargs,
+                )
+
+    UDPipeLanguage.__name__ = "UDPipeLanguage"
+    UDPipeLanguage.__qualname__ = "UDPipeLanguage"
+    _udpipe_lang_cls_cache[base_cls] = UDPipeLanguage
+    return UDPipeLanguage
+
+
 def get_defaults(lang: str) -> Language.Defaults:
     """Get the language-specific defaults, if available in spaCy. This allows
     using lexical attribute getters that depend on static language data, e.g.
@@ -108,7 +206,12 @@ def load(
     config["nlp"]["tokenizer"]["lang"] = lang
     config["nlp"]["tokenizer"]["path"] = get_path(lang)
     config["nlp"]["tokenizer"]["meta"] = None
-    return blank(name, config=config)
+    try:
+        base_cls = get_lang_class(name)
+    except ImportError:
+        base_cls = Language
+    udpipe_cls = _create_udpipe_lang_cls(base_cls)
+    return udpipe_cls.from_config(config=config)
 
 
 def load_from_path(
@@ -131,4 +234,9 @@ def load_from_path(
     config["nlp"]["tokenizer"]["lang"] = lang
     config["nlp"]["tokenizer"]["path"] = path
     config["nlp"]["tokenizer"]["meta"] = meta
-    return blank(name, config=config)
+    try:
+        base_cls = get_lang_class(name)
+    except ImportError:
+        base_cls = Language
+    udpipe_cls = _create_udpipe_lang_cls(base_cls)
+    return udpipe_cls.from_config(config=config)
