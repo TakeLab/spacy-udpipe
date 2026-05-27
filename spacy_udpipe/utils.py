@@ -6,7 +6,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
-from spacy import blank, Language
+from spacy import Language
 from spacy.util import get_lang_class
 
 from . import resources
