@@ -4,7 +4,7 @@ import os
 import sys
 import urllib.request
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any, Deque, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from spacy import Language
@@ -156,7 +156,7 @@ def _create_udpipe_lang_cls(base_cls: type) -> type:
             if n_process == -1:
                 n_process = os.cpu_count() or 1
             if is_free_threaded() and n_process > 1:
-                pending: Deque = deque()
+                pending: Deque[Future] = deque()
                 chunks = _chunked(texts, batch_size)
                 with ThreadPoolExecutor(max_workers=n_process) as executor:
                     # Pre-fill the executor pipeline (up to n_process tasks)
