@@ -42,7 +42,7 @@ setup(
         "ufal.udpipe>=1.2.0",
     ],
     extras_require={
-        "dev": ["flake8", "pytest", "pytest-mock"],
+        "dev": ["flake8", "pytest", "pytest-mock", "click>=8.0.0"],
     },
     python_requires=">=3.9",
     entry_points={
